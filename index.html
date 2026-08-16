@@ -4,78 +4,157 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>採用クエスト</title>
+<title>Triple FANTASY Ⅲ</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#0c0c50">
+<meta name="theme-color" content="#061238">
 <style>
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    margin: 0; min-height: 100vh;
-    background: #060630;
-    color: #fff;
-    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+    margin: 0; min-height: 100vh; overflow: hidden;
+    background:
+      radial-gradient(ellipse 120% 55% at 50% -10%, #1c3f7a 0%, rgba(28,63,122,0) 60%),
+      radial-gradient(ellipse 90% 60% at 50% 115%, #04204a 0%, rgba(4,32,74,0) 65%),
+      linear-gradient(180deg, #050d28 0%, #081a44 45%, #061238 100%);
+    color: #eaf0ff;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 20px 14px; gap: 14px;
+    padding: 24px 16px; position: relative;
   }
-  .ffwin {
-    width: 100%; max-width: 420px;
-    background: linear-gradient(180deg, #2038c8 0%, #0c1878 100%);
-    border: 3px solid #fff; border-radius: 8px;
-    box-shadow: 0 0 0 3px #3858e8, 0 6px 24px rgba(0,0,0,.6);
-    padding: 14px 18px;
+  /* 光芒 */
+  .beam {
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+    width: 46vmin; height: 100%;
+    background: linear-gradient(180deg, rgba(150,200,255,.16) 0%, rgba(150,200,255,.05) 45%, rgba(150,200,255,0) 75%);
+    clip-path: polygon(38% 0, 62% 0, 85% 100%, 15% 100%);
+    pointer-events: none;
   }
-  .title { text-align: center; }
-  .title h1 { margin: 0; font-size: 22px; letter-spacing: 4px; text-shadow: 2px 2px 0 #000; }
-  .title .date { font-size: 12px; color: #cdd6ff; margin-top: 4px; }
-  .pinfo { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-  .pinfo .name { font-weight: 700; }
-  .pinfo .sub { color: #cdd6ff; font-size: 12.5px; }
-  .cmd { padding: 8px 10px; }
+  /* HUMAN DATA サークル(SVG) */
+  #ring {
+    position: absolute; left: 50%; top: 46%;
+    width: 92vmin; height: 92vmin; max-width: 640px; max-height: 640px;
+    transform: translate(-50%, -54%);
+    opacity: .16; pointer-events: none;
+    animation: ringspin 120s linear infinite;
+  }
+  @keyframes ringspin { from { transform: translate(-50%, -54%) rotate(0deg); } to { transform: translate(-50%, -54%) rotate(360deg); } }
+  #ringLabels {
+    position: absolute; left: 50%; top: 46%;
+    width: 92vmin; height: 92vmin; max-width: 640px; max-height: 640px;
+    transform: translate(-50%, -54%);
+    opacity: .22; pointer-events: none;
+  }
+  /* タイトル */
+  .titlebox { position: relative; text-align: center; z-index: 2; margin-top: -4vh; }
+  .humandata {
+    font-family: "Avenir Next", "Futura", "Helvetica Neue", sans-serif;
+    font-size: 13px; letter-spacing: 10px; color: #9db8e8; opacity: .55;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 {
+    margin: 0; font-weight: 700; font-style: italic;
+    font-family: "Times New Roman", "Hiragino Mincho ProN", serif;
+    font-size: clamp(34px, 9vw, 64px); line-height: 1.15; letter-spacing: 2px;
+    background: linear-gradient(180deg, #ffffff 18%, #cfe0ff 42%, #7f96c4 58%, #e8f0ff 78%, #93a8d4 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 2px 10px rgba(120,170,255,.35)) drop-shadow(0 1px 0 rgba(0,0,0,.7));
+    white-space: nowrap;
+  }
+  h1 .three { font-size: 1.15em; padding-left: 6px; }
+  .underline {
+    width: min(74vw, 460px); height: 2px; margin: 12px auto 0;
+    background: linear-gradient(90deg, transparent, #cfe0ff, transparent);
+    opacity: .7;
+  }
+  /* プレイヤー情報 */
+  .pinfo {
+    z-index: 2; margin-top: 26px; font-size: 13.5px; color: #b9c9ec; letter-spacing: 2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,.8);
+  }
+  .pinfo b { color: #eef4ff; font-size: 15px; }
+  /* メニュー(FF15風テキストリスト) */
+  .cmd { z-index: 2; margin-top: 5vh; display: flex; flex-direction: column; gap: 6px; min-width: 250px; }
   .cmd a {
-    display: flex; align-items: center; gap: 10px;
-    color: #fff; text-decoration: none; font-size: 17px; font-weight: 700;
-    padding: 13px 10px; border-radius: 6px; letter-spacing: 1px;
-    text-shadow: 1px 1px 0 #000;
+    display: flex; align-items: center; gap: 12px;
+    color: #dfe8ff; text-decoration: none;
+    font-size: 19px; letter-spacing: 6px; padding: 11px 18px;
+    text-shadow: 0 1px 6px rgba(0,0,0,.9);
+    border-left: 2px solid transparent; transition: all .15s;
   }
-  .cmd a .cursor { width: 1em; flex-shrink: 0; opacity: 0; }
+  .cmd a .cursor { width: 1em; opacity: 0; flex-shrink: 0; color: #fff; filter: drop-shadow(0 0 6px #9db8e8); }
+  .cmd a:hover, .cmd a:active {
+    color: #ffffff; border-left-color: #cfe0ff;
+    background: linear-gradient(90deg, rgba(160,190,255,.14), transparent);
+  }
   .cmd a:hover .cursor, .cmd a:active .cursor { opacity: 1; }
-  .cmd a:hover, .cmd a:active { background: rgba(255,255,255,.12); }
-  .cmd a.boss { color: #ffd24d; animation: blink 1.2s step-end infinite; }
-  @keyframes blink { 50% { opacity: .55; } }
-  .cmd .locked { color: #7d86c8; font-size: 13px; padding: 8px 10px 2px; }
-  .foot { font-size: 11px; color: #8890d8; text-align: center; }
+  .cmd a.boss { color: #ffd24d; animation: blink 1.3s step-end infinite; }
+  @keyframes blink { 50% { opacity: .5; } }
+  .cmd .locked { color: #6d7cb0; font-size: 12px; letter-spacing: 2px; padding: 2px 18px 0; }
+  .foot {
+    position: absolute; bottom: 18px; left: 0; right: 0; text-align: center;
+    font-size: 11px; letter-spacing: 3px; color: #5d6c9e; z-index: 2;
+  }
 </style>
 </head>
 <body>
-<div class="ffwin title">
-  <h1>採用クエスト</h1>
-  <div class="date" id="dateLine"></div>
+<div class="beam"></div>
+
+<svg id="ring" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3ec8e8"/><stop offset="1" stop-color="#4ee8a8"/>
+    </linearGradient>
+  </defs>
+  <!-- 4分割リング(採用→教育→定着→ブランド) -->
+  <g fill="none" stroke="url(#tg1)" stroke-width="34" stroke-linecap="round">
+    <path d="M 200 48 A 152 152 0 0 1 341 148"/>
+    <path d="M 349 210 A 152 152 0 0 1 252 344"/>
+    <path d="M 190 351 A 152 152 0 0 1 59 252"/>
+    <path d="M 51 190 A 152 152 0 0 1 148 56"/>
+  </g>
+</svg>
+<svg id="ringLabels" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="'Hiragino Kaku Gothic ProN', sans-serif" font-size="20" font-weight="700" fill="#bfe8ff" text-anchor="middle">
+    <text x="278" y="92" transform="rotate(38 278 92)">採用</text>
+    <text x="316" y="286" transform="rotate(128 316 286)" >教育</text>
+    <text x="122" y="312" transform="rotate(218 122 312)">定着</text>
+    <text x="82" y="118" transform="rotate(308 82 118)">ブランド</text>
+  </g>
+  <g font-family="'Avenir Next', 'Futura', sans-serif" text-anchor="middle" fill="#cfe4ff">
+    <text x="200" y="192" font-size="30" font-weight="800" letter-spacing="4">HUMAN</text>
+    <text x="200" y="226" font-size="30" font-weight="800" letter-spacing="4">DATA</text>
+  </g>
+</svg>
+
+<div class="titlebox">
+  <div class="humandata">Human Data Saga</div>
+  <h1>Triple FANTASY<span class="three">Ⅲ</span></h1>
+  <div class="underline"></div>
 </div>
-<div class="ffwin pinfo">
-  <span class="name" id="pname"></span>
-  <span class="sub" id="pjob"></span>
-</div>
-<div class="ffwin cmd" id="cmd"></div>
-<div class="foot">毎朝9:05　あたらしい依頼が届く</div>
+
+<div class="pinfo" id="pinfo"></div>
+<div class="cmd" id="cmd"></div>
+<div class="foot" id="dateLine"></div>
+
 <script>
 const MENU = {"date": "2026-08-16", "weekday": "日", "mode": "quest", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1}};
-document.getElementById('dateLine').textContent = `${MENU.date}（${MENU.weekday}）`;
-document.getElementById('pname').textContent = MENU.player.name;
-document.getElementById('pjob').textContent =
-  `${MENU.player.job_emoji} ${MENU.player.job}　Lv.${MENU.player.level}　${MENU.player.lap}周目`;
+document.getElementById('dateLine').textContent =
+  `${MENU.date}（${MENU.weekday}）　毎朝9:05　あたらしい依頼が届く`;
+document.getElementById('pinfo').innerHTML =
+  `<b>${MENU.player.name}</b>　${MENU.player.job_emoji} ${MENU.player.job}　Lv.${MENU.player.level}　${MENU.player.lap}周目`;
 
 const cmd = document.getElementById('cmd');
 let html = '';
 if (MENU.mode === 'boss') {
   html += `<a class="boss" href="boss.html"><span class="cursor">▶</span>⚠️ ボスが　あらわれた！</a>`;
-  html += `<div class="locked">（ボスを倒すまで　通常の冒険には出られない）</div>`;
+  html += `<div class="locked">ボスを倒すまで　通常の冒険には出られない</div>`;
 } else if (MENU.mode === 'job_select') {
-  html += `<a class="boss" href="boss.html"><span class="cursor">▶</span>🌟 女神が　待っている（職業選択）</a>`;
+  html += `<a class="boss" href="boss.html"><span class="cursor">▶</span>🌟 女神が　待っている</a>`;
 } else {
-  html += `<a href="quest.html"><span class="cursor">▶</span>⚔️ 冒険に出る</a>`;
+  html += `<a href="quest.html"><span class="cursor">▶</span>冒険に出る</a>`;
 }
-html += `<a href="status.html"><span class="cursor">▶</span>📊 ステータス</a>`;
+html += `<a href="status.html"><span class="cursor">▶</span>ステータス</a>`;
 cmd.innerHTML = html;
 </script>
 </body>
