@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>冒険｜採用クエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1e3a5f">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1a1d21; --sub: #616770;
+    --accent: #2563eb; --accent-soft: #dbeafe; --border: #e3e6ea;
+    --ok: #16a34a; --ok-soft: #dcfce7; --ng: #dc2626; --ng-soft: #fee2e2;
+    --gold: #b45309; --gold-soft: #fef3c7; --xp: #7c3aed; --xp-soft: #ede9fe;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #15171a; --card: #1f2226; --text: #e8eaed; --sub: #9aa2ab;
+      --accent: #60a5fa; --accent-soft: #1e3a5f; --border: #33373d;
+      --ok: #4ade80; --ok-soft: #14331f; --ng: #f87171; --ng-soft: #3b1a1a;
+      --gold: #fbbf24; --gold-soft: #3a2e10; --xp: #a78bfa; --xp-soft: #2a2140;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.7; padding: 16px 12px 80px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  header { margin: 8px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 20px; margin: 0; }
+  header .meta { color: var(--sub); font-size: 12px; }
+  #soundBtn { border: 1px solid var(--border); background: var(--card); color: var(--text);
+    border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  /* ステータスカード */
+  #status {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 16px;
+  }
+  #status .toprow { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+  #status .lv { font-size: 18px; font-weight: 800; }
+  #status .streak { color: var(--gold); font-weight: 700; font-size: 14px; }
+  .xpbar { background: var(--xp-soft); border-radius: 999px; height: 12px; margin: 8px 0 4px; overflow: hidden; }
+  .xpbar .fill { background: var(--xp); height: 100%; border-radius: 999px; transition: width 1.2s ease; }
+  #status .xptext { font-size: 12px; color: var(--sub); }
+  .statchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .statchip { font-size: 11.5px; border: 1px solid var(--border); border-radius: 999px; padding: 2px 9px; color: var(--sub); }
+  .statchip b { color: var(--text); }
+  .cursedbox { margin-top: 10px; font-size: 12.5px; color: var(--sub); background: var(--ng-soft); border-radius: 8px; padding: 6px 10px; }
+  /* 問題カード */
+  .q { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+  .q .tag { display: inline-block; font-size: 12px; color: var(--accent);
+    background: var(--accent-soft); border-radius: 999px; padding: 1px 10px; margin-bottom: 4px; }
+  .monster { font-size: 13.5px; color: var(--sub); margin: 2px 0 10px; }
+  .monster .mname { font-weight: 700; color: var(--text); }
+  .q .qtext { font-size: 15px; white-space: pre-wrap; margin-bottom: 12px; }
+  .choice { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    background: none; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px; font-size: 14px; color: var(--text);
+    cursor: pointer; line-height: 1.6; font-family: inherit; }
+  .choice .mark { font-weight: 700; color: var(--sub); flex-shrink: 0; }
+  .choice.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .choice.sel .mark { color: var(--accent); }
+  .choice.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .choice.wrong { border-color: var(--ng); background: var(--ng-soft); }
+  .blank-group { margin-bottom: 14px; }
+  .blank-group .blabel { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { border: 1px solid var(--border); background: none; color: var(--text);
+    border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .opt.sel { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+  .opt.wrong { border-color: var(--ng); background: var(--ng-soft); color: var(--ng); }
+  .result-banner { font-size: 14.5px; font-weight: 700; border-radius: 10px; padding: 10px 14px; margin-top: 12px; display: none; }
+  .result-banner.ok { display: block; background: var(--ok-soft); color: var(--ok); }
+  .result-banner.ng { display: block; background: var(--ng-soft); color: var(--ng); }
+  .expl { display: none; margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; font-size: 14px; }
+  .expl .ref a { color: var(--accent); word-break: break-all; }
+  .memo { color: var(--sub); font-size: 13px; }
+  .askBtn { margin-top: 10px; border: 1px solid var(--accent); color: var(--accent); background: none;
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  #gradeBtn { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px;
+    background: var(--accent); color: #fff; border: none; border-radius: 999px;
+    font-size: 16px; font-weight: 700; padding: 14px 42px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25); font-family: inherit; }
+  #gradeBtn:disabled { opacity: .5; }
+  #summary { display: none; background: var(--card); border: 2px solid var(--accent);
+    border-radius: 14px; padding: 18px; margin: 20px 0; }
+  #summary h2 { margin: 0 0 8px; font-size: 18px; }
+  #summary .score { font-size: 32px; font-weight: 800; color: var(--accent); }
+  #summary .gains { margin: 10px 0; font-size: 14.5px; }
+  #summary .levelup { color: var(--xp); font-weight: 800; font-size: 17px; margin: 6px 0; }
+  #summary .drop { background: var(--gold-soft); color: var(--gold); border-radius: 10px;
+    padding: 10px 14px; margin: 10px 0; font-weight: 700; display: none; }
+  #summary .record { margin-top: 10px; font-size: 13px; color: var(--sub); }
+  #copyBtn { margin-top: 8px; border: 1px solid var(--accent); color: var(--accent); background: none;
+    border-radius: 8px; padding: 8px 16px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  @keyframes pop { 0% { transform: scale(.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  .result-banner.ok, .result-banner.ng { animation: pop .35s ease; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>⚔️ 本日の商談クエスト</h1>
+      <div class="meta" id="dateMeta"></div>
+      <div class="meta"><a href="./" style="color:var(--accent);text-decoration:none">◀ メニューへもどる</a></div>
+    </div>
+    <button id="soundBtn">🔊</button>
+  </header>
+  <div id="status"></div>
+  <div id="quiz"></div>
+  <div id="summary">
+    <h2>⚔️ 戦闘結果</h2>
+    <div class="score" id="scoreText"></div>
+    <div class="levelup" id="levelupText" style="display:none"></div>
+    <div class="gains" id="gainsText"></div>
+    <div class="drop" id="dropBox"></div>
+    <div class="record" id="recordGuide"></div>
+    <button id="copyBtn">結果テキストをコピー</button>
+  </div>
+</div>
+<button id="gradeBtn" disabled>採点する</button>
+<script>
+const QUIZ = {"date": "2026-08-16", "weekday": "日", "game": {"level": 1, "xp": 0, "xp_next": 50, "streak": 0, "stats": [{"subject": "戦略", "rank": "－", "note": "0/0"}, {"subject": "マーケ", "rank": "－", "note": "0/0"}, {"subject": "媒体", "rank": "－", "note": "0/0"}, {"subject": "運用", "rank": "－", "note": "0/0"}, {"subject": "スカウト", "rank": "－", "note": "0/0"}, {"subject": "チャネル", "rank": "－", "note": "0/0"}, {"subject": "計算", "rank": "－", "note": "0/0"}, {"subject": "時事", "rank": "－", "note": "0/0"}], "cursed": [], "drop_on_perfect": {"emoji": "🧾", "name": "始まりの商談帳"}, "job": "サイヨウ勇者", "job_emoji": "🗡", "lap": 1}, "questions": [{"no": 1, "subject": "戦略", "type": "single", "monster": {"name": "ホウシンドラゴン", "emoji": "🧭"}, "text": "採用戦略（採用計画）を立てるとき、企業と必ず握るべき最重要の2つの指標の組み合わせとして、社内勉強会で繰り返し強調されているものはどれか。", "choices": ["応募数と面接設定率", "採用人数と採用単価", "クリック率と表示回数", "離職率と定着率", "採用予算と広告費"], "answer": 1, "explanation": "戦略で最重要なのは「採用人数」と「採用単価」。この2つの掛け算が採用予算になる。応募数やクリック率は戦術レベルのKPIであり、離職率は定着の指標。RDはこの2つを企業としっかり握って戦う。", "ref": {"label": "【平①】【勉①】採用の基礎", "url": ""}}, {"no": 2, "subject": "媒体", "type": "single", "monster": {"name": "バイタイゴーレム", "emoji": "👺"}, "text": "飲食店.COM（求人飲食店ドットコム）の特徴として正しいものはどれか。", "choices": ["掲載料は月10万円超と高額だが、応募保証が付いている", "基本掲載料は月19,800円（税抜）と安く、飲食経験者の採用に強い", "全職種を扱う総合媒体で、未経験者の母集団が厚い", "応募対応の速さで検索の表示順位が決まる仕組みがある", "求人検索エンジンなので掲載料はかからない"], "answer": 1, "explanation": "飲食店.COMは業界特化型媒体の圧倒的No.1で、最大の魅力は月19,800円（税抜）という安さ。ユーザーの9割以上が飲食経験者。Aの応募保証とDの対応速度順位はグルスタの特徴、Cは総合媒体（バイトルNEXT等）、Eは求人検索エンジン（Indeed等）の説明。", "ref": {"label": "【平②】【勉③】媒体の知識", "url": ""}}, {"no": 3, "subject": "運用", "type": "single", "monster": {"name": "ギャクサンスライム", "emoji": "💰"}, "text": "顧客の採用目標が「年間10名」のとき、逆算予算の基準値（10〜15応募で1名採用）に従うと、年間に必要な応募数の目安はどれか。", "choices": ["約30応募", "約50応募", "約100〜150応募", "約300応募", "約500応募"], "answer": 2, "explanation": "1名採用に10〜15応募（採用率約7〜10%）が基準値なので、10名なら100〜150応募。ここからさらに応募率4%で2,500クリック、クリック単価500円で予算125万円…と逆算するのが教科書の計算例。クリックに近い数字ほど読みやすいので、逆算はクリック単価から立てる。", "ref": {"label": "【勉⑤】採用計画の立て方", "url": ""}}, {"no": 4, "subject": "時事", "type": "single", "monster": {"name": "チンギンワイバーン", "emoji": "⚖️"}, "text": "【時事】2026年7月28日、中央最低賃金審議会が答申した2026年度の地域別最低賃金の引き上げ目安について、正しいものはどれか。", "choices": ["全国加重平均の目安は1,121円で据え置きとなった", "全国加重平均の目安は1,176円（+55円）で、引き上げ幅は6年ぶりに前年度を下回った", "引き上げ幅はAランク（東京・大阪など）が最も大きく設定された", "新しい最低賃金は答申と同時に即日発効した", "引き上げ率は約10%で過去最大となった"], "answer": 1, "explanation": "目安は全国加重平均1,176円（現行1,121円から+55円、約4.9%）。引き上げ幅が前年度を下回るのは6年ぶり。ランク別はAランク54円に対しB・Cランクは56円と、地域間格差是正のため下位ランクの方が大きい（Cは誤り）。発効は10月頃から順次（Dは誤り）。実務では10月に向けて顧客のアルバイト時給・求人票の最低賃金割れチェックが必要になる。", "ref": {"label": "nippon.com 2026-07-30", "url": "https://www.nippon.com/ja/japan-data/h02856/"}}, {"no": 5, "subject": "マーケ", "type": "fill", "monster": {"name": "ヨンピーキマイラ", "emoji": "🎭"}, "text": "求人は【 A 】（仕事内容・権限範囲を明確に書く要素）と「シェアバリューコンテンツ」（自社の価値・魅力）の2要素で構成される。シェアバリューコンテンツを因数分解したものが4Pで、Philosophy（理念）・People（人）・【 B 】（待遇・特典）・Profession（仕事内容・業態の魅力）の4つを指す。", "options": ["ジョブディスクリプション", "Privilege", "ペルソナ", "Position", "エンプロイジャーニー", "Promotion", "KGI", "ランチェスター戦略"], "blanks": [{"label": "A", "answer": 0}, {"label": "B", "answer": 1}], "explanation": "求人＝ジョブディスクリプション＋シェアバリューコンテンツ。4PはPhilosophy／People／Privilege／Profession（Indeedのオウンドメディアリクルーティングの枠組み）。仕事内容と権限範囲を明確に書かないと入社後ギャップで定着率が悪化する。マーケの4P（Promotion等）と混同しないこと。", "ref": {"label": "【勉①】【勉②】4Pフレームワーク", "url": ""}}]};
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzm7QZ9RGFKspuD9fZQQ7B8pTYpcNK_XGm-r8gm9O4-Ee97hhRfvy2Ew-JJK9CkNmXeYg/exec"; // GAS Webアプリ。空文字なら自動送信をスキップ
+
+const NUM_EMOJI = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣"];
+const CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩";
+const SAVE_KEY = "saiyo-quiz-" + QUIZ.date;
+const SOUND_KEY = "saiyo-quiz-sound";
+let state = {};
+let graded = false;
+let soundOn = localStorage.getItem(SOUND_KEY) !== "off";
+
+document.getElementById('dateMeta').textContent =
+  `${QUIZ.date}（${QUIZ.weekday}）｜ 自動保存対応`;
+
+// ---- サウンド(すべて端末内で合成するオリジナル音。外部音源なし) ----
+let audioCtx = null;
+function ctx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, start, dur, type, vol) {
+  const c = ctx();
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, c.currentTime + start);
+  g.gain.linearRampToValueAtTime(vol || 0.12, c.currentTime + start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + start + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.05);
+}
+function sfxCorrect() { if (!soundOn) return; tone(880, 0, .09, 'square', .08); tone(1318.5, .09, .18, 'square', .08); }
+function sfxWrong() { if (!soundOn) return; tone(196, 0, .22, 'sawtooth', .09); tone(147, .18, .3, 'sawtooth', .08); }
+function sfxFanfare() { // オリジナルの勝利ファンファーレ(華やか版: ハモリ+大和音+きらめき)
+  if (!soundOn) return;
+  // メロディ
+  [[523.25,0,.09],[659.25,.09,.09],[783.99,.18,.09],[1046.5,.27,.30],[880,.60,.12],[987.77,.72,.12]]
+    .forEach(n => tone(n[0], n[1], n[2], 'square', .09));
+  // ハモリ(3度下)
+  [[659.25,.27,.30],[698.46,.60,.12],[783.99,.72,.12]]
+    .forEach(n => tone(n[0], n[1], n[2], 'square', .05));
+  // 締めの大和音(低音含む)
+  [261.63,523.25,659.25,783.99,1046.5,1318.5].forEach(f => tone(f, .84, 1.6, 'triangle', .06));
+  // きらめき
+  tone(2093, 1.05, .3, 'sine', .05); tone(2637, 1.22, .3, 'sine', .05); tone(3135.96, 1.39, .45, 'sine', .04);
+}
+function sfxLevelUp() { if (!soundOn) return; [523.25,587.33,659.25,783.99,880,1046.5].forEach((f,i)=>tone(f,i*.07,.12,'triangle',.09)); }
+const soundBtn = document.getElementById('soundBtn');
+soundBtn.textContent = soundOn ? '🔊' : '🔇';
+soundBtn.addEventListener('click', () => {
+  soundOn = !soundOn;
+  localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
+  soundBtn.textContent = soundOn ? '🔊' : '🔇';
+  if (soundOn) sfxCorrect();
+});
+
+// ---- ステータス表示 ----
+const G = QUIZ.game || null;
+function xpThreshold(level) { return 50; } // どのレベルも一律50XP
+const LEVEL_CAP = 10;
+function renderStatus(bonusXp, leveledTo) {
+  if (!G) { document.getElementById('status').style.display = 'none'; return; }
+  const el = document.getElementById('status');
+  const xpNow = G.xp + (bonusXp || 0);
+  let lv = leveledTo || G.level;
+  const need = xpThreshold(lv);
+  const prevSum = (function(){ let s=0; for(let i=1;i<lv;i++) s+=xpThreshold(i); return s; })();
+  const inLv = Math.max(0, xpNow - prevSum);
+  const pct = Math.min(100, Math.round(inLv / need * 100));
+  let html = `<div class="toprow"><span class="lv">${G.job_emoji || '⚔️'} ${G.job || ''} Lv.${lv}</span><span class="streak">🔥 ${G.streak}日連続</span></div>`;
+  html += `<div class="xptext" style="margin-top:2px">${G.lap || 1}周目の旅</div>`;
+  html += `<div class="xpbar"><div class="fill" style="width:${lv >= LEVEL_CAP ? 100 : pct}%"></div></div>`;
+  html += lv >= LEVEL_CAP
+    ? `<div class="xptext">⚠️ Lv.${LEVEL_CAP}到達！ 明朝、ボスが現れる…</div>`
+    : `<div class="xptext">XP ${inLv} / ${need}${bonusXp ? `（今日 +${bonusXp}）` : ''}</div>`;
+  if (G.stats && G.stats.length) {
+    html += `<div class="statchips">` + G.stats.map(s =>
+      `<span class="statchip"><b>${s.subject}</b> ${s.rank}${s.note ? ` ${s.note}` : ''}</span>`).join('') + `</div>`;
+  }
+  if (G.cursed && G.cursed.length) {
+    html += `<div class="cursedbox">🟣 呪われた商材: ${G.cursed.map(c=>c.item).join('、')}<br>→ Lv.10のボスを倒すと　まとめて解呪される！</div>`;
+  }
+  el.innerHTML = html;
+}
+renderStatus(0);
+
+// ---- 問題描画 ----
+const quizEl = document.getElementById('quiz');
+QUIZ.questions.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'q'; card.id = 'q' + q.no;
+  let inner = `<span class="tag">問${q.no}｜${q.subject}${q.type==='fill'?'（選択式）':'（択一式）'}${q.uncurse?'　🔁復習':''}</span>`;
+  if (q.monster) {
+    inner += `<div class="monster">${q.monster.emoji} <span class="mname">${q.monster.name}</span> が現れた！${q.uncurse ? `（倒すと「${q.uncurse}」を解呪）` : ''}</div>`;
+  }
+  inner += `<div class="qtext">${q.text}</div>`;
+  if (q.type === 'single') {
+    q.choices.forEach((c, i) => {
+      const m = String.fromCharCode(65 + i);
+      inner += `<button class="choice" data-q="${q.no}" data-i="${i}"><span class="mark">${m}</span><span>${c}</span></button>`;
+    });
+  } else {
+    q.blanks.forEach((b, bi) => {
+      inner += `<div class="blank-group"><div class="blabel">【 ${b.label} 】</div><div class="opts">`;
+      q.options.forEach((o, oi) => {
+        inner += `<button class="opt" data-q="${q.no}" data-b="${bi}" data-i="${oi}">${CIRCLED[oi]}${o}</button>`;
+      });
+      inner += `</div></div>`;
+    });
+  }
+  inner += `<div class="result-banner" id="banner${q.no}"></div>`;
+  inner += `<div class="expl" id="expl${q.no}"></div>`;
+  card.innerHTML = inner;
+  quizEl.appendChild(card);
+  state[q.no] = q.type === 'single' ? null : new Array(q.blanks.length).fill(null);
+});
+
+function saveState() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ state, graded })); } catch (e) {}
+}
+function applySelections() {
+  QUIZ.questions.forEach(q => {
+    if (q.type === 'single') {
+      if (state[q.no] !== null) {
+        const el = document.querySelector(`.choice[data-q="${q.no}"][data-i="${state[q.no]}"]`);
+        if (el) el.classList.add('sel');
+      }
+    } else {
+      state[q.no].forEach((v, bi) => {
+        if (v !== null) {
+          const el = document.querySelector(`.opt[data-q="${q.no}"][data-b="${bi}"][data-i="${v}"]`);
+          if (el) el.classList.add('sel');
+        }
+      });
+    }
+  });
+}
+
+quizEl.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  if (btn.classList.contains('askBtn')) { askClaude(parseInt(btn.dataset.q)); return; }
+  if (graded) return;
+  const qno = parseInt(btn.dataset.q);
+  if (btn.classList.contains('choice')) {
+    document.querySelectorAll(`.choice[data-q="${qno}"]`).forEach(el => el.classList.remove('sel'));
+    btn.classList.add('sel');
+    state[qno] = parseInt(btn.dataset.i);
+  } else if (btn.classList.contains('opt')) {
+    const bi = parseInt(btn.dataset.b);
+    document.querySelectorAll(`.opt[data-q="${qno}"][data-b="${bi}"]`).forEach(el => el.classList.remove('sel'));
+    btn.classList.add('sel');
+    state[qno][bi] = parseInt(btn.dataset.i);
+  }
+  saveState();
+  updateBtn();
+});
+
+function allAnswered() {
+  return QUIZ.questions.every(q =>
+    q.type === 'single' ? state[q.no] !== null : state[q.no].every(v => v !== null));
+}
+function updateBtn() {
+  const b = document.getElementById('gradeBtn');
+  b.disabled = !allAnswered();
+  b.textContent = allAnswered() ? '⚔️ 採点する' : '採点する（未回答あり）';
+}
+
+function questionContext(q) {
+  let lines = [`採用支援（飲食業界の採用コンサル）の実務知識を学習中です。以下の問題について質問があります。`, ``, `【問題】問${q.no}（${q.subject}）`, q.text, ``];
+  if (q.type === 'single') {
+    lines.push(`【選択肢】`);
+    q.choices.forEach((c, i) => lines.push(`${String.fromCharCode(65+i)}. ${c}`));
+    lines.push(``, `【正解】${String.fromCharCode(65 + q.answer)}`);
+  } else {
+    lines.push(`【語群】` + q.options.map((o,i)=>`${CIRCLED[i]}${o}`).join(' '));
+    lines.push(`【正解】` + q.blanks.map((b)=>`${b.label}=${CIRCLED[b.answer]}${q.options[b.answer]}`).join(' '));
+  }
+  lines.push(``, `【解説】`, q.explanation, ``, `【根拠】${q.ref.label} ${q.ref.url}`, ``, `私の質問: `);
+  return lines.join('\n');
+}
+function askClaude(qno) {
+  const q = QUIZ.questions.find(x => x.no === qno);
+  const ctx2 = questionContext(q);
+  if (navigator.clipboard) navigator.clipboard.writeText(ctx2).catch(()=>{});
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(ctx2), '_blank');
+}
+
+function doGrade(fromRestore) {
+  graded = true;
+  const results = [];
+  let gainedXp = 0;
+  const uncursed = [];
+  QUIZ.questions.forEach(q => {
+    let ok;
+    if (q.type === 'single') {
+      ok = state[q.no] === q.answer;
+      document.querySelectorAll(`.choice[data-q="${q.no}"]`).forEach(el => {
+        const i = parseInt(el.dataset.i);
+        if (i === q.answer) el.classList.add('correct');
+        else if (i === state[q.no]) el.classList.add('wrong');
+      });
+    } else {
+      ok = q.blanks.every((b, bi) => state[q.no][bi] === b.answer);
+      q.blanks.forEach((b, bi) => {
+        document.querySelectorAll(`.opt[data-q="${q.no}"][data-b="${bi}"]`).forEach(el => {
+          const i = parseInt(el.dataset.i);
+          if (i === b.answer) el.classList.add('correct');
+          else if (i === state[q.no][bi]) el.classList.add('wrong');
+        });
+      });
+    }
+    results.push(ok);
+    const banner = document.getElementById('banner' + q.no);
+    const mname = q.monster ? q.monster.name : `問${q.no}`;
+    const memoji = q.monster ? q.monster.emoji : '';
+    if (ok) {
+      const xp = q.uncurse ? 15 : 10;
+      gainedXp += xp;
+      if (q.uncurse) uncursed.push(q.uncurse);
+      banner.textContent = `⚔️ ${memoji}${mname}を撃破！ +${xp}XP` + (q.uncurse ? `　🔓「${q.uncurse}」を解呪した！` : '');
+      banner.className = 'result-banner ok';
+    } else {
+      banner.textContent = `💥 ${memoji}${mname}の攻撃！ 商材が呪われた…（この魔物はボスの配下に加わる）`;
+      banner.className = 'result-banner ng';
+    }
+    const ex = document.getElementById('expl' + q.no);
+    ex.style.display = 'block';
+    ex.innerHTML = `<div style="white-space:pre-wrap">${q.explanation}</div>` +
+      `<div class="ref">根拠：<a href="${q.ref.url}" target="_blank" rel="noopener">${q.ref.label}</a></div>` +
+      `<button class="askBtn" data-q="${q.no}">🙋 この問題についてClaudeに質問する</button>`;
+  });
+  const score = results.filter(Boolean).length;
+  const wrong = results.map((r, i) => r ? null : i + 1).filter(Boolean);
+  const perfect = wrong.length === 0;
+  if (perfect) gainedXp += 25;
+
+  // 効果音(復元時は鳴らさない)
+  if (!fromRestore) {
+    if (perfect) sfxFanfare();
+    else if (score >= 3) sfxCorrect();
+    else sfxWrong();
+  }
+
+  // レベルアップ判定(暫定表示。正本は翌朝cronが同じ式で更新)
+  let lvUpTo = null;
+  if (G) {
+    let lv = G.level, xp = G.xp + gainedXp;
+    let sum = 0; for (let i = 1; i < lv; i++) sum += xpThreshold(i);
+    while (lv < LEVEL_CAP && xp - sum >= xpThreshold(lv)) { sum += xpThreshold(lv); lv++; }
+    if (lv > G.level) lvUpTo = lv;
+    renderStatus(gainedXp, lvUpTo || G.level);
+  }
+
+  document.getElementById('scoreText').textContent = `${score} / ${QUIZ.questions.length}`;
+  const gains = [`⚡ 獲得XP: +${gainedXp}` + (perfect ? '（全問正解ボーナス +25 含む）' : '')];
+  if (uncursed.length) gains.push(`🔓 解呪: ${uncursed.join('、')}`);
+  document.getElementById('gainsText').innerHTML = gains.join('<br>');
+  if (lvUpTo) {
+    const lu = document.getElementById('levelupText');
+    lu.style.display = 'block';
+    lu.textContent = lvUpTo >= LEVEL_CAP
+      ? `🎉 レベルアップ！ Lv.${G.level} → Lv.${lvUpTo}　⚠️ ついにLv.10！ 明朝、ボスが現れる…`
+      : `🎉 レベルアップ！ Lv.${G.level} → Lv.${lvUpTo}`;
+    if (!fromRestore) setTimeout(sfxLevelUp, perfect ? 1600 : 500);
+  }
+  if (perfect && G && G.drop_on_perfect) {
+    const d = document.getElementById('dropBox');
+    d.style.display = 'block';
+    d.textContent = `🎁 ${G.drop_on_perfect.emoji} 「${G.drop_on_perfect.name}」を手に入れた！`;
+  }
+
+  const sent = SUBMIT_URL && !SUBMIT_URL.startsWith('__');
+  if (sent && !fromRestore) {
+    try {
+      fetch(SUBMIT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ date: 'saiyo-' + QUIZ.date, score: score, wrong: wrong })
+      });
+    } catch (e) {}
+  }
+  const guide = document.getElementById('recordGuide');
+  if (sent) {
+    guide.innerHTML = `📡 結果は自動送信されました。翌朝ステータスに反映されます。<br><span class="memo">（予備: 記録されていなかったら ${wrong.length ? wrong.map(n => NUM_EMOJI[n-1]).join(' ') : '✅'} をSlack投稿にリアクション）</span>`;
+  } else {
+    guide.innerHTML = `記録のため、Slackの今日の投稿に ${wrong.length ? '間違えた問題の絵文字 ' + wrong.map(n => NUM_EMOJI[n-1]).join(' ') : '✅'} をリアクションしてください。`;
+  }
+  const resultText = `今日の結果 ${results.map((r, i) => `${i+1}${r ? '○' : '×'}`).join(' ')}`;
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    navigator.clipboard.writeText(resultText).then(() => {
+      document.getElementById('copyBtn').textContent = 'コピーしました ✓';
+    });
+  });
+  document.getElementById('summary').style.display = 'block';
+  document.getElementById('gradeBtn').style.display = 'none';
+  if (!fromRestore) {
+    saveState();
+    document.getElementById('summary').scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+document.getElementById('gradeBtn').addEventListener('click', () => {
+  if (graded || !allAnswered()) return;
+  doGrade(false);
+});
+
+(function restore() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) { updateBtn(); return; }
+    const d = JSON.parse(raw);
+    if (d && d.state) {
+      Object.keys(d.state).forEach(k => { state[k] = d.state[k]; });
+      applySelections();
+      if (d.graded) doGrade(true);
+    }
+  } catch (e) {}
+  updateBtn();
+})();
+</script>
+</body>
+</html>

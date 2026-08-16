@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>ステータス｜採用クエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0c0c50">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #060630; color: #fff;
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+    padding: 16px 12px 40px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+    line-height: 1.7;
+  }
+  .ffwin {
+    width: 100%; max-width: 460px;
+    background: linear-gradient(180deg, #2038c8 0%, #0c1878 100%);
+    border: 3px solid #fff; border-radius: 8px;
+    box-shadow: 0 0 0 3px #3858e8, 0 6px 24px rgba(0,0,0,.6);
+    padding: 12px 16px; font-size: 14px;
+  }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .head .t { font-size: 16px; font-weight: 700; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; }
+  .head a { color: #9fd0ff; text-decoration: none; font-size: 13px; }
+  .row { display: flex; justify-content: space-between; gap: 8px; }
+  .row .k { color: #cdd6ff; }
+  .row .v { font-weight: 700; text-align: right; }
+  .sect { color: #ffd24d; font-size: 12.5px; letter-spacing: 2px; margin-bottom: 4px; text-shadow: 1px 1px 0 #000; }
+  .xpbar { background: #0a1050; border: 1px solid #5868d8; border-radius: 4px; height: 10px; margin: 6px 0 2px; overflow: hidden; }
+  .xpbar .fill { background: linear-gradient(90deg, #58c8ff, #a0e8ff); height: 100%; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { color: #cdd6ff; font-weight: 400; text-align: right; font-size: 11.5px; padding: 1px 4px; }
+  th:first-child { text-align: left; }
+  td { padding: 2px 4px; text-align: right; }
+  td.subj { text-align: left; font-weight: 700; }
+  td.subj .star { color: #ffd24d; }
+  .dots { color: #5868d8; }
+  .list { font-size: 13px; }
+  .muted { color: #8890d8; font-size: 12.5px; }
+  .rival { display: flex; justify-content: space-between; gap: 6px; padding: 3px 0; font-size: 13px; }
+  .rival .rn { font-weight: 700; }
+  .rival.destiny .rn { color: #ff9e9e; }
+  .rival .rl { color: #cdd6ff; flex-shrink: 0; }
+  .rivalnote { margin-top: 6px; font-size: 12.5px; color: #ffd24d; border-top: 1px dashed #5868d8; padding-top: 6px; }
+</style>
+</head>
+<body>
+<div class="ffwin head">
+  <span class="t">ステータス</span>
+  <a href="./">◀ メニューへもどる</a>
+</div>
+
+<div class="ffwin" id="basic"></div>
+<div class="ffwin"><div class="sect">ステータス（かず＝るいけい正解　りつ＝正答率）</div><table id="stats"></table></div>
+<div class="ffwin"><div class="sect">🎒 しょうざい</div><div class="list" id="items"></div></div>
+<div class="ffwin"><div class="sect">🏅 バッジ</div><div class="list" id="badges"></div></div>
+<div class="ffwin"><div class="sect">📜 しょくれき</div><div class="list" id="history"></div></div>
+<div class="ffwin"><div class="sect">🏆 じこベスト</div><div class="list" id="best"></div></div>
+<div class="ffwin"><div class="sect">⚔️ ライバルたち</div><div id="rivals"></div></div>
+
+<script>
+const S = {"date": "2026-08-16", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1, "xp_total_job": 0, "xp_in_level": 0, "next_need": 50, "streak": 0}, "stats": [{"subject": "戦略", "star": false, "count": 0, "rate": "—"}, {"subject": "マーケ", "star": false, "count": 0, "rate": "—"}, {"subject": "媒体", "star": false, "count": 0, "rate": "—"}, {"subject": "運用", "star": false, "count": 0, "rate": "—"}, {"subject": "スカウト", "star": false, "count": 0, "rate": "—"}, {"subject": "チャネル", "star": false, "count": 0, "rate": "—"}, {"subject": "計算", "star": false, "count": 0, "rate": "—"}, {"subject": "時事", "star": false, "count": 0, "rate": "—"}], "items": [], "badges": [], "history": [], "best": {"fastest_lap_days": null, "best_week_rate": null, "longest_streak": 0}, "rivals": [{"emoji": "📋", "name": "軍師ダンドリ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🎻", "name": "詩人カタリベ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "💰", "name": "大商人バイタン", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🌀", "name": "修行僧グルグル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🥷", "name": "影のヒッコヌキ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "⚓", "name": "船長ツテヅル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🧮", "name": "老師ソロバン", "level": 1, "lap": 1, "destiny": false}], "rival_line": "7人のライバル商人たちも、今日から旅を始めた。"};
+const p = S.player;
+document.getElementById('basic').innerHTML =
+  `<div class="row"><span style="font-size:16px;font-weight:800">${p.name}</span><span class="v">${S.date}</span></div>` +
+  `<div class="row"><span>${p.job_emoji} ${p.job}</span><span class="v">レベル ${p.level}</span></div>` +
+  `<div class="row"><span class="k">しゅうかい</span><span class="v">${p.lap}周目</span></div>` +
+  `<div class="row"><span class="k">けいけんち</span><span class="v">${p.xp_total_job}</span></div>` +
+  `<div class="row"><span class="k">つぎのレベルまで</span><span class="v">あと ${p.next_need}</span></div>` +
+  `<div class="xpbar"><div class="fill" style="width:${Math.min(100, Math.round(p.xp_in_level / 50 * 100))}%"></div></div>` +
+  `<div class="row"><span class="k">れんぞく</span><span class="v">🔥 ${p.streak}日</span></div>`;
+
+document.getElementById('stats').innerHTML =
+  `<tr><th>しょうろ</th><th>かず</th><th>りつ</th></tr>` +
+  S.stats.map(s =>
+    `<tr><td class="subj">${s.star ? '<span class="star">★</span>' : ''}${s.subject}</td>` +
+    `<td>${s.count}</td><td>${s.rate}</td></tr>`).join('');
+
+function fillList(id, arr, empty) {
+  document.getElementById(id).innerHTML = arr && arr.length
+    ? arr.map(x => `・${x}`).join('<br>') : `<span class="muted">${empty}</span>`;
+}
+fillList('items', S.items, 'まだ　なにも持っていない');
+fillList('badges', S.badges, 'ボスを倒すと　女神の祝福バッジが授けられる');
+fillList('history', S.history, 'サイヨウ勇者として　旅は始まったばかり');
+
+const b = S.best;
+document.getElementById('best').innerHTML =
+  `・さいそく周回　${b.fastest_lap_days ? b.fastest_lap_days + '日' : '——'}<br>` +
+  `・しゅうかん正答率ベスト　${b.best_week_rate || '——'}<br>` +
+  `・さいちょう連続記録　${b.longest_streak || 0}日`;
+
+document.getElementById('rivals').innerHTML =
+  S.rivals.map(r =>
+    `<div class="rival${r.destiny ? ' destiny' : ''}">` +
+    `<span class="rn">${r.emoji} ${r.name}${r.destiny ? '（宿命）' : ''}</span>` +
+    `<span class="rl">Lv.${r.level}・${r.lap}周目</span></div>`).join('') +
+  (S.rival_line ? `<div class="rivalnote">${S.rival_line}</div>` : '');
+</script>
+</body>
+</html>
