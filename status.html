@@ -54,6 +54,9 @@
   <a href="./">◀ メニューへもどる</a>
 </div>
 
+<div class="ffwin artwin" id="artwin" style="padding:8px">
+  <img id="jobart" alt="" style="display:block;width:100%;border-radius:6px">
+</div>
 <div class="ffwin" id="basic"></div>
 <div class="ffwin"><div class="sect">ステータス（かず＝るいけい正解　りつ＝正答率）</div><table id="stats"></table></div>
 <div class="ffwin"><div class="sect">🎒 しょうざい</div><div class="list" id="items"></div></div>
@@ -63,8 +66,10 @@
 <div class="ffwin"><div class="sect">⚔️ ライバルたち</div><div id="rivals"></div></div>
 
 <script>
-const S = {"date": "2026-08-16", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1, "xp_total_job": 0, "xp_in_level": 0, "next_need": 50, "streak": 0}, "stats": [{"subject": "戦略", "star": false, "count": 0, "rate": "—"}, {"subject": "マーケ", "star": false, "count": 0, "rate": "—"}, {"subject": "媒体", "star": false, "count": 0, "rate": "—"}, {"subject": "運用", "star": false, "count": 0, "rate": "—"}, {"subject": "スカウト", "star": false, "count": 0, "rate": "—"}, {"subject": "チャネル", "star": false, "count": 0, "rate": "—"}, {"subject": "計算", "star": false, "count": 0, "rate": "—"}, {"subject": "時事", "star": false, "count": 0, "rate": "—"}], "items": [], "badges": [], "history": [], "best": {"fastest_lap_days": null, "best_week_rate": null, "longest_streak": 0}, "rivals": [{"emoji": "📋", "name": "軍師ダンドリ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🎻", "name": "詩人カタリベ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "💰", "name": "大商人バイタン", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🌀", "name": "修行僧グルグル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🥷", "name": "影のヒッコヌキ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "⚓", "name": "船長ツテヅル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🧮", "name": "老師ソロバン", "level": 1, "lap": 1, "destiny": false}], "rival_line": "7人のライバル商人たちも、今日から旅を始めた。"};
+const S = {"date": "2026-08-16", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1, "xp_total_job": 0, "xp_in_level": 0, "next_need": 50, "streak": 0, "art": "art/job_yusha.jpg"}, "stats": [{"subject": "戦略", "star": false, "count": 0, "rate": "—"}, {"subject": "マーケ", "star": false, "count": 0, "rate": "—"}, {"subject": "媒体", "star": false, "count": 0, "rate": "—"}, {"subject": "運用", "star": false, "count": 0, "rate": "—"}, {"subject": "スカウト", "star": false, "count": 0, "rate": "—"}, {"subject": "チャネル", "star": false, "count": 0, "rate": "—"}, {"subject": "計算", "star": false, "count": 0, "rate": "—"}, {"subject": "時事", "star": false, "count": 0, "rate": "—"}], "items": [], "badges": [], "history": [], "best": {"fastest_lap_days": null, "best_week_rate": null, "longest_streak": 0}, "rivals": [{"emoji": "📋", "name": "軍師ダンドリ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🎻", "name": "詩人カタリベ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "💰", "name": "大商人バイタン", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🌀", "name": "修行僧グルグル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🥷", "name": "影のヒッコヌキ", "level": 1, "lap": 1, "destiny": false}, {"emoji": "⚓", "name": "船長ツテヅル", "level": 1, "lap": 1, "destiny": false}, {"emoji": "🧮", "name": "老師ソロバン", "level": 1, "lap": 1, "destiny": false}], "rival_line": "7人のライバル商人たちも、今日から旅を始めた。"};
 const p = S.player;
+if (p.art) { document.getElementById('jobart').src = p.art; }
+else { document.getElementById('artwin').style.display = 'none'; }
 document.getElementById('basic').innerHTML =
   `<div class="row"><span style="font-size:16px;font-weight:800">${p.name}</span><span class="v">${S.date}</span></div>` +
   `<div class="row"><span>${p.job_emoji} ${p.job}</span><span class="v">レベル ${p.level}</span></div>` +
