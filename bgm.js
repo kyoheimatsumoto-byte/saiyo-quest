@@ -1,11 +1,12 @@
 /* 採用クエスト 共有BGMエンジン v4 (オーケストラ音源のシームレスループ再生)
-   使い方: <script src="bgm.js?v=9"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
+   使い方: <script src="bgm.js?v=10"></script> のあと BGM.mount('prelude'|'status'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
    音源: bgm/*.m4a (fluidsynth+GM音源でレンダリングしたオリジナル曲)
    設定はlocalStorageでページ間共有: saiyo-bgm-on ('on'/'off'), saiyo-bgm-vol ('0'〜'1') */
 const BGM = (() => {
   const LS_ON = 'saiyo-bgm-on', LS_VOL = 'saiyo-bgm-vol';
   const FILES = {
     prelude: 'bgm/prelude.m4a',
+    status:  'bgm/status.m4a',
     quest:   'bgm/quest.m4a',
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',

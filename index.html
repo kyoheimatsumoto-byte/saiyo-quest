@@ -275,7 +275,8 @@ cmd.addEventListener('click', e => {
     BGM.footsteps(() => setTimeout(() => { location.href = href; }, 320));
   } else if (href === 'status.html') {
     e.preventDefault();
-    BGM.chime(() => { location.href = href; });
+    if (BGM.isOn()) BGM.play('status');   // 帳簿の曲へブリッジ
+    BGM.chime(() => setTimeout(() => { location.href = href; }, 150));
   } else if (href === 'boss.html') {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('boss1');
@@ -283,7 +284,7 @@ cmd.addEventListener('click', e => {
   }
 });
 </script>
-<script src="bgm.js?v=9"></script>
+<script src="bgm.js?v=10"></script>
 <script>BGM.mount('prelude', 'right');</script>
 </body>
 </html>
