@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>おんがくの間｜Triple FANTASY Ⅲ</title>
+<meta name="theme-color" content="#061238">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #060d2c; color: #eaf0ff;
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 14px;
+  }
+  .ffwin { width: 100%; max-width: 440px;
+    background: linear-gradient(180deg, #2038c8 0%, #0c1878 100%);
+    border: 3px solid #fff; border-radius: 8px;
+    box-shadow: 0 0 0 3px #3858e8, 0 6px 24px rgba(0,0,0,.6); padding: 14px 16px; }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .head .t { font-weight: 700; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; }
+  .head a { color: #9fd0ff; text-decoration: none; font-size: 13px; }
+  .track { display: flex; justify-content: space-between; align-items: center; padding: 9px 4px;
+    border-bottom: 1px dashed rgba(160,190,255,.3); font-size: 14px; }
+  .track:last-of-type { border-bottom: none; }
+  .track .tn { text-shadow: 1px 1px 0 #000; }
+  .track .tn small { display: block; color: #aeb greenwich; color: #b9c9ec; font-size: 11px; }
+  .track button { border: 1px solid #fff; background: rgba(255,255,255,.1); color: #fff;
+    border-radius: 999px; padding: 6px 18px; font-size: 13px; cursor: pointer; font-family: inherit; letter-spacing: 2px; }
+  .track button.playing { background: #ffd24d; color: #402800; border-color: #ffd24d; font-weight: 700; }
+  .volrow { display: flex; align-items: center; gap: 10px; font-size: 13px; padding-top: 4px; }
+  .volrow input { flex: 1; }
+  #stopBtn { width: 100%; margin-top: 4px; border: 1px solid #8890d8; background: none; color: #cdd6ff;
+    border-radius: 8px; padding: 9px; font-size: 13px; cursor: pointer; font-family: inherit; letter-spacing: 3px; }
+</style>
+</head>
+<body>
+<div class="ffwin head"><span class="t">♪ おんがくの間</span><a href="./">◀ メニューへもどる</a></div>
+<div class="ffwin" id="list"></div>
+<div class="ffwin">
+  <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
+  <button id="stopBtn">■ 停止</button>
+</div>
+<script src="bgm.js?v=2"></script>
+<script>
+const SONGS = [
+  { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
+  { key: 'quest',   name: '商談という名の戦い', where: '冒険（毎日の7問）' },
+  { key: 'boss1',   name: '好敵手、立ちはだかる', where: 'ボス戦・1周目（ライバル2位）' },
+  { key: 'boss2',   name: '頂上決戦', where: 'ボス戦・2周目（ライバル1位）' },
+  { key: 'boss3',   name: '絶望', where: 'ボス戦・3周目（ラスボス）' },
+];
+const list = document.getElementById('list');
+list.innerHTML = SONGS.map(s =>
+  `<div class="track"><span class="tn">${s.name}<small>${s.where}</small></span>` +
+  `<button data-k="${s.key}">▶ 再生</button></div>`).join('');
+list.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('.track button').forEach(x => { x.classList.remove('playing'); x.textContent = '▶ 再生'; });
+  BGM.play(b.dataset.k);
+  b.classList.add('playing'); b.textContent = '♪ 再生中';
+});
+document.getElementById('stopBtn').addEventListener('click', () => {
+  BGM.stop();
+  document.querySelectorAll('.track button').forEach(x => { x.classList.remove('playing'); x.textContent = '▶ 再生'; });
+});
+const vol = document.getElementById('vol');
+vol.value = Math.round((parseFloat(localStorage.getItem('saiyo-bgm-vol')) || 0.5) * 100);
+vol.addEventListener('input', () => BGM.setVol(vol.value / 100));
+</script>
+</body>
+</html>
