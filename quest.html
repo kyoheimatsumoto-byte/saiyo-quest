@@ -35,8 +35,6 @@
   header { margin: 8px 4px 12px; display: flex; justify-content: space-between; align-items: center; }
   header h1 { font-size: 20px; margin: 0; }
   header .meta { color: var(--sub); font-size: 12px; }
-  #soundBtn { border: 1px solid var(--border); background: var(--card); color: var(--text);
-    border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
   /* ステータスカード */
   #status {
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -112,7 +110,6 @@
       <div class="meta" id="dateMeta"></div>
       <div class="meta"><a href="./" style="color:var(--accent);text-decoration:none">◀ メニューへもどる</a></div>
     </div>
-    <button id="soundBtn">🔊</button>
   </header>
   <div id="status"></div>
   <div id="quiz"></div>
@@ -137,7 +134,7 @@ const SAVE_KEY = "saiyo-quiz-" + QUIZ.date;
 const SOUND_KEY = "saiyo-quiz-sound";
 let state = {};
 let graded = false;
-let soundOn = localStorage.getItem(SOUND_KEY) !== "off";
+const soundOn = () => localStorage.getItem(SOUND_KEY) !== "off";
 
 document.getElementById('dateMeta').textContent =
   `${QUIZ.date}（${QUIZ.weekday}）｜ 自動保存対応`;
@@ -159,10 +156,10 @@ function tone(freq, start, dur, type, vol) {
   o.connect(g); g.connect(c.destination);
   o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.05);
 }
-function sfxCorrect() { if (!soundOn) return; tone(880, 0, .09, 'square', .08); tone(1318.5, .09, .18, 'square', .08); }
-function sfxWrong() { if (!soundOn) return; tone(196, 0, .22, 'sawtooth', .09); tone(147, .18, .3, 'sawtooth', .08); }
+function sfxCorrect() { if (!soundOn()) return; tone(880, 0, .09, 'square', .08); tone(1318.5, .09, .18, 'square', .08); }
+function sfxWrong() { if (!soundOn()) return; tone(196, 0, .22, 'sawtooth', .09); tone(147, .18, .3, 'sawtooth', .08); }
 function sfxFanfare() { // オリジナルの勝利ファンファーレ(華やか版: ハモリ+大和音+きらめき)
-  if (!soundOn) return;
+  if (!soundOn()) return;
   // メロディ
   [[523.25,0,.09],[659.25,.09,.09],[783.99,.18,.09],[1046.5,.27,.30],[880,.60,.12],[987.77,.72,.12]]
     .forEach(n => tone(n[0], n[1], n[2], 'square', .09));
@@ -174,15 +171,7 @@ function sfxFanfare() { // オリジナルの勝利ファンファーレ(華や�
   // きらめき
   tone(2093, 1.05, .3, 'sine', .05); tone(2637, 1.22, .3, 'sine', .05); tone(3135.96, 1.39, .45, 'sine', .04);
 }
-function sfxLevelUp() { if (!soundOn) return; [523.25,587.33,659.25,783.99,880,1046.5].forEach((f,i)=>tone(f,i*.07,.12,'triangle',.09)); }
-const soundBtn = document.getElementById('soundBtn');
-soundBtn.textContent = soundOn ? '🔊' : '🔇';
-soundBtn.addEventListener('click', () => {
-  soundOn = !soundOn;
-  localStorage.setItem(SOUND_KEY, soundOn ? 'on' : 'off');
-  soundBtn.textContent = soundOn ? '🔊' : '🔇';
-  if (soundOn) sfxCorrect();
-});
+function sfxLevelUp() { if (!soundOn()) return; [523.25,587.33,659.25,783.99,880,1046.5].forEach((f,i)=>tone(f,i*.07,.12,'triangle',.09)); }
 
 // ---- ステータス表示 ----
 const G = QUIZ.game || null;
@@ -450,6 +439,6 @@ document.getElementById('gradeBtn').addEventListener('click', () => {
 })();
 </script>
 <script src="bgm.js"></script>
-<script>BGM.mount('quest', 'left');</script>
+<script>BGM.mount('quest', 'right');</script>
 </body>
 </html>

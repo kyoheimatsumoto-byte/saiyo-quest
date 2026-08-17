@@ -132,30 +132,39 @@ const BGM = (() => {
 
   function play(name) {
     if (!TRACKS[name]) return;
-    stop();
+    if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
+    const c = ctx();
+    master.gain.cancelScheduledValues(c.currentTime);
+    master.gain.setValueAtTime(getVol() * 0.5, c.currentTime);
     current = name;
-    nextT = ctx().currentTime + 0.15;
+    nextT = c.currentTime + 0.15;
     loop();
   }
   function stop() {
     if (loopTimer) { clearTimeout(loopTimer); loopTimer = null; }
     current = null;
+    if (master && actx) {  // 予約済みの音も即座に消す
+      master.gain.cancelScheduledValues(actx.currentTime);
+      master.gain.setTargetAtTime(0.0001, actx.currentTime, 0.04);
+    }
   }
   function setVol(v) {
     localStorage.setItem(LS_VOL, String(v));
-    if (master) master.gain.value = v * 0.5;
+    if (master && current) master.gain.value = v * 0.5;
   }
 
   /* ⚙️ 設定UI + 初回操作での自動再生 */
   function mount(name, side) {
-    const pos = side === 'left' ? 'left:12px' : 'right:12px';
+    const pos = side === 'left' ? 'left:10px' : 'right:10px';
     const el = document.createElement('div');
     el.innerHTML =
-      `<button id="bgmGear" style="position:fixed;top:12px;${pos};z-index:300;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(10,16,50,.72);color:#dfe8ff;font-size:18px;cursor:pointer;backdrop-filter:blur(4px)">⚙️</button>` +
-      `<div id="bgmPanel" style="display:none;position:fixed;top:56px;${pos};z-index:300;background:rgba(8,14,46,.94);border:1px solid rgba(160,190,255,.45);border-radius:12px;padding:14px 16px;color:#dfe8ff;font-size:13px;font-family:'Hiragino Kaku Gothic ProN',sans-serif;min-width:190px;box-shadow:0 6px 24px rgba(0,0,0,.5)">` +
+      `<button id="bgmGear" style="position:fixed;top:10px;${pos};z-index:300;width:42px;height:42px;border-radius:50%;border:2px solid #ffffff;background:#0c1560;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 0 0 2px #3858e8,0 4px 14px rgba(0,0,0,.7);line-height:1">⚙️</button>` +
+      `<div id="bgmPanel" style="display:none;position:fixed;top:60px;${pos};z-index:300;background:#0a1148;border:2px solid #fff;border-radius:12px;padding:14px 16px;color:#eef2ff;font-size:13px;font-family:'Hiragino Kaku Gothic ProN',sans-serif;min-width:200px;box-shadow:0 0 0 2px #3858e8,0 8px 28px rgba(0,0,0,.75)">` +
       `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b>🎵 BGM</b>` +
       `<button id="bgmToggle" style="border:1px solid #8890d8;background:none;color:#dfe8ff;border-radius:999px;padding:3px 14px;font-size:12px;cursor:pointer;font-family:inherit"></button></div>` +
-      `<div style="display:flex;align-items:center;gap:8px">🔈<input id="bgmVol" type="range" min="0" max="100" style="flex:1">🔊</div>` +
+      `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">🔈<input id="bgmVol" type="range" min="0" max="100" style="flex:1">🔊</div>` +
+      `<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed rgba(160,190,255,.4);padding-top:10px"><b>🔔 効果音</b>` +
+      `<button id="seToggle" style="border:1px solid #8890d8;background:none;color:#dfe8ff;border-radius:999px;padding:3px 14px;font-size:12px;cursor:pointer;font-family:inherit"></button></div>` +
       `</div>`;
     document.body.appendChild(el);
     const gear = document.getElementById('bgmGear'), panel = document.getElementById('bgmPanel');
@@ -170,6 +179,12 @@ const BGM = (() => {
       if (isOn()) play(name); else stop();
     });
     slider.addEventListener('input', () => setVol(slider.value / 100));
+    const seBtn = document.getElementById('seToggle');
+    const SE_KEY = 'saiyo-quiz-sound';
+    const seOn = () => localStorage.getItem(SE_KEY) !== 'off';
+    const paintSe = () => { seBtn.textContent = seOn() ? 'ON' : 'OFF'; seBtn.style.color = seOn() ? '#8fe8a0' : '#8890d8'; seBtn.style.borderColor = seBtn.style.color; };
+    paintSe();
+    seBtn.addEventListener('click', () => { localStorage.setItem(SE_KEY, seOn() ? 'off' : 'on'); paintSe(); });
 
     // ブラウザの自動再生制限: 最初のタップ/クリック/キーで開始
     const kick = () => { if (isOn() && !current) play(name); };
