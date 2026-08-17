@@ -1,5 +1,5 @@
 /* 採用クエスト 共有BGMエンジン v4 (オーケストラ音源のシームレスループ再生)
-   使い方: <script src="bgm.js?v=7"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
+   使い方: <script src="bgm.js?v=8"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
    音源: bgm/*.m4a (fluidsynth+GM音源でレンダリングしたオリジナル曲)
    設定はlocalStorageでページ間共有: saiyo-bgm-on ('on'/'off'), saiyo-bgm-vol ('0'〜'1') */
 const BGM = (() => {
@@ -9,7 +9,7 @@ const BGM = (() => {
     quest:   'bgm/quest.m4a',
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',
-    boss3:   'bgm/boss3.m4a?v=2',
+    boss3:   'bgm/boss3.m4a?v=3',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
@@ -96,11 +96,11 @@ const BGM = (() => {
 
   /* ⚙️ 設定UI + 初回操作での自動再生 */
   function mount(name, side) {
-    const pos = side === 'left' ? 'left:10px' : 'right:10px';
+    const pos = side === 'left' ? 'left:max(12px, env(safe-area-inset-left))' : 'right:max(12px, env(safe-area-inset-right))';
     const el = document.createElement('div');
     el.innerHTML =
-      `<button id="bgmGear" style="position:fixed;top:10px;${pos};z-index:300;width:42px;height:42px;border-radius:50%;border:2px solid #ffffff;background:#0c1560;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 0 0 2px #3858e8,0 4px 14px rgba(0,0,0,.7);line-height:1">⚙️</button>` +
-      `<div id="bgmPanel" style="display:none;position:fixed;top:60px;${pos};z-index:300;background:#0a1148;border:2px solid #fff;border-radius:12px;padding:14px 16px;color:#eef2ff;font-size:13px;font-family:'Hiragino Kaku Gothic ProN',sans-serif;min-width:200px;box-shadow:0 0 0 2px #3858e8,0 8px 28px rgba(0,0,0,.75)">` +
+      `<button id="bgmGear" style="position:fixed;top:max(12px, env(safe-area-inset-top));${pos};z-index:300;width:40px;height:40px;border-radius:50%;border:2px solid #ffffff;background:#0c1560;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 0 0 2px #3858e8,0 4px 14px rgba(0,0,0,.7);line-height:1">⚙️</button>` +
+      `<div id="bgmPanel" style="display:none;position:fixed;top:calc(max(12px, env(safe-area-inset-top)) + 48px);${pos};max-width:calc(100vw - 24px);z-index:300;background:#0a1148;border:2px solid #fff;border-radius:12px;padding:14px 16px;color:#eef2ff;font-size:13px;font-family:'Hiragino Kaku Gothic ProN',sans-serif;min-width:200px;box-shadow:0 0 0 2px #3858e8,0 8px 28px rgba(0,0,0,.75)">` +
       `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b>🎵 BGM</b>` +
       `<button id="bgmToggle" style="border:1px solid #8890d8;background:none;color:#dfe8ff;border-radius:999px;padding:3px 14px;font-size:12px;cursor:pointer;font-family:inherit"></button></div>` +
       `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">🔈<input id="bgmVol" type="range" min="0" max="100" style="flex:1">🔊</div>` +
