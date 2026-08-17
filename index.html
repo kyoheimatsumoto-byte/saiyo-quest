@@ -14,9 +14,9 @@
   body {
     margin: 0; min-height: 100vh; overflow: hidden;
     background:
-      radial-gradient(ellipse 120% 55% at 50% -10%, #1c3f7a 0%, rgba(28,63,122,0) 60%),
-      radial-gradient(ellipse 90% 60% at 50% 115%, #04204a 0%, rgba(4,32,74,0) 65%),
-      linear-gradient(180deg, #050d28 0%, #081a44 45%, #061238 100%);
+      radial-gradient(ellipse 120% 50% at 50% -12%, #16335f 0%, rgba(22,51,95,0) 60%),
+      radial-gradient(ellipse 80% 50% at 50% 118%, #071c40 0%, rgba(7,28,64,0) 60%),
+      linear-gradient(180deg, #03081c 0%, #071433 48%, #050d26 100%);
     color: #eaf0ff;
     font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -25,17 +25,46 @@
   /* 光芒 */
   .beam {
     position: absolute; left: 50%; top: 0; transform: translateX(-50%);
-    width: 46vmin; height: 100%;
-    background: linear-gradient(180deg, rgba(150,200,255,.16) 0%, rgba(150,200,255,.05) 45%, rgba(150,200,255,0) 75%);
-    clip-path: polygon(38% 0, 62% 0, 85% 100%, 15% 100%);
+    width: 52vmin; height: 100%;
+    background: linear-gradient(180deg, rgba(150,200,255,.12) 0%, rgba(150,200,255,.04) 45%, rgba(150,200,255,0) 72%);
+    clip-path: polygon(36% 0, 64% 0, 88% 100%, 12% 100%);
+    filter: blur(6px);
     pointer-events: none;
+  }
+  /* 星空 */
+  #stars { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .star { position: absolute; border-radius: 50%; background: #dce8ff;
+    animation: twinkle var(--tw, 4s) ease-in-out var(--td, 0s) infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: var(--o1, .8); } 50% { opacity: var(--o2, .15); } }
+  /* オーロラ(漂う光霧) */
+  .aurora { position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none; mix-blend-mode: screen; }
+  .aurora.a1 { width: 70vmin; height: 34vmin; left: -8vmin; top: 16%;
+    background: radial-gradient(closest-side, rgba(62,200,232,.16), transparent 70%);
+    animation: drift1 52s ease-in-out infinite alternate; }
+  .aurora.a2 { width: 62vmin; height: 30vmin; right: -6vmin; top: 42%;
+    background: radial-gradient(closest-side, rgba(120,110,240,.14), transparent 70%);
+    animation: drift2 64s ease-in-out infinite alternate; }
+  .aurora.a3 { width: 50vmin; height: 26vmin; left: 28%; bottom: 4%;
+    background: radial-gradient(closest-side, rgba(78,232,168,.10), transparent 70%);
+    animation: drift1 74s ease-in-out infinite alternate-reverse; }
+  @keyframes drift1 { from { transform: translate(0, 0) scale(1); } to { transform: translate(9vmin, -5vmin) scale(1.18); } }
+  @keyframes drift2 { from { transform: translate(0, 0) scale(1.1); } to { transform: translate(-10vmin, 4vmin) scale(.95); } }
+  /* 立ち昇る光の粒 */
+  .mote { position: absolute; bottom: -2vh; border-radius: 50%; background: #cfe4ff;
+    box-shadow: 0 0 6px 2px rgba(160,200,255,.55); pointer-events: none; opacity: 0;
+    animation: rise var(--rd, 18s) linear var(--rdel, 0s) infinite; }
+  @keyframes rise {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: var(--mo, .5); }
+    75% { opacity: var(--mo, .5); }
+    100% { transform: translateY(-105vh); opacity: 0; }
   }
   /* HUMAN DATA サークル(SVG) */
   #ring {
     position: absolute; left: 50%; top: 46%;
     width: 92vmin; height: 92vmin; max-width: 640px; max-height: 640px;
     transform: translate(-50%, -54%);
-    opacity: .16; pointer-events: none;
+    opacity: .10; pointer-events: none;
     animation: ringspin 120s linear infinite;
   }
   @keyframes ringspin { from { transform: translate(-50%, -54%) rotate(0deg); } to { transform: translate(-50%, -54%) rotate(360deg); } }
@@ -43,7 +72,7 @@
     position: absolute; left: 50%; top: 46%;
     width: 92vmin; height: 92vmin; max-width: 640px; max-height: 640px;
     transform: translate(-50%, -54%);
-    opacity: .22; pointer-events: none;
+    opacity: .15; pointer-events: none;
   }
   /* タイトル */
   .titlebox { position: relative; text-align: center; z-index: 2; margin-top: -4vh; }
@@ -98,6 +127,10 @@
 </style>
 </head>
 <body>
+<div id="stars"></div>
+<div class="aurora a1"></div>
+<div class="aurora a2"></div>
+<div class="aurora a3"></div>
 <div class="beam"></div>
 
 <svg id="ring" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
@@ -138,11 +171,28 @@
 <div class="foot" id="dateLine"></div>
 
 <script>
-const MENU = {"date": "2026-08-17", "weekday": "月", "mode": "quest", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1}};
+const MENU = {"date": "2026-08-16", "weekday": "日", "mode": "quest", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 1, "lap": 1}};
 document.getElementById('dateLine').textContent =
   `${MENU.date}（${MENU.weekday}）　毎朝9:05　あたらしい依頼が届く`;
 document.getElementById('pinfo').innerHTML =
   `<b>${MENU.player.name}</b>　${MENU.player.job_emoji} ${MENU.player.job}　Lv.${MENU.player.level}　${MENU.player.lap}周目`;
+
+// 星空と光の粒を生成
+(function sky() {
+  const stars = document.getElementById('stars');
+  let html = '';
+  for (let i = 0; i < 110; i++) {
+    const sz = Math.random() < .82 ? (Math.random() * 1.4 + .6) : (Math.random() * 2 + 1.8);
+    const o1 = (Math.random() * .5 + .4).toFixed(2);
+    const o2 = (Math.random() * .2 + .05).toFixed(2);
+    html += `<span class="star" style="left:${(Math.random()*100).toFixed(2)}%;top:${(Math.random()*100).toFixed(2)}%;width:${sz.toFixed(1)}px;height:${sz.toFixed(1)}px;--tw:${(Math.random()*5+2.5).toFixed(1)}s;--td:${(Math.random()*6).toFixed(1)}s;--o1:${o1};--o2:${o2}"></span>`;
+  }
+  for (let i = 0; i < 14; i++) {
+    const sz = (Math.random() * 2.2 + 1.4).toFixed(1);
+    html += `<span class="mote" style="left:${(Math.random()*96+2).toFixed(2)}%;width:${sz}px;height:${sz}px;--rd:${(Math.random()*14+13).toFixed(1)}s;--rdel:${(Math.random()*18).toFixed(1)}s;--mo:${(Math.random()*.35+.25).toFixed(2)}"></span>`;
+  }
+  stars.innerHTML = html;
+})();
 
 const cmd = document.getElementById('cmd');
 let html = '';
