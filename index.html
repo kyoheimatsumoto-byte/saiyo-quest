@@ -60,6 +60,32 @@
     75% { opacity: var(--mo, .5); }
     100% { transform: translateY(-105vh); opacity: 0; }
   }
+  /* 流れ星(右上→左下) */
+  .shooting {
+    position: absolute; width: 130px; height: 2px; pointer-events: none;
+    background: linear-gradient(270deg, rgba(255,255,255,.95), rgba(180,210,255,.4), transparent);
+    border-radius: 999px; opacity: 0; transform: rotate(155deg);
+    filter: drop-shadow(0 0 4px rgba(200,225,255,.8));
+    animation: shoot var(--sd, 1.4s) ease-out var(--sdel, 0s) 1;
+  }
+  @keyframes shoot {
+    0% { opacity: 0; translate: 0 0; }
+    8% { opacity: 1; }
+    100% { opacity: 0; translate: -46vmax 21vmax; }
+  }
+  /* コアクリスタル */
+  #crystal {
+    position: absolute; left: 50%; top: 44%;
+    height: 58vmin; max-height: 460px;
+    transform: translate(-50%, -50%);
+    opacity: .34; pointer-events: none; mix-blend-mode: screen;
+    animation: crystalfloat 9s ease-in-out infinite;
+    filter: drop-shadow(0 0 26px rgba(120,190,255,.55));
+  }
+  @keyframes crystalfloat {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); filter: drop-shadow(0 0 22px rgba(120,190,255,.45)); }
+    50% { transform: translate(-50%, -50%) translateY(-14px); filter: drop-shadow(0 0 40px rgba(150,210,255,.75)); }
+  }
   /* HUMAN DATA サークル(SVG) */
   #ring {
     position: absolute; left: 50%; top: 46%;
@@ -161,6 +187,25 @@
   </g>
 </svg>
 
+<svg id="crystal" viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#dff2ff"/><stop offset="1" stop-color="#4a7de0"/>
+    </linearGradient>
+    <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9fd0ff"/><stop offset="1" stop-color="#2b4fb0"/>
+    </linearGradient>
+    <linearGradient id="cg3" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c2e4ff"/><stop offset="1" stop-color="#3a63c8"/>
+    </linearGradient>
+  </defs>
+  <polygon points="100,4 152,86 100,142 48,86" fill="url(#cg1)"/>
+  <polygon points="100,4 126,52 100,142 74,52" fill="#ffffff" opacity=".30"/>
+  <polygon points="100,142 152,86 100,336" fill="url(#cg2)" opacity=".92"/>
+  <polygon points="100,142 48,86 100,336" fill="url(#cg3)" opacity=".78"/>
+  <polygon points="100,142 118,120 100,336 88,150" fill="#ffffff" opacity=".16"/>
+</svg>
+
 <div class="titlebox">
   <div class="humandata">Human Data Saga</div>
   <h1>Triple FANTASY<span class="three">Ⅲ</span></h1>
@@ -193,6 +238,17 @@ document.getElementById('pinfo').innerHTML =
     html += `<span class="mote" style="left:${(Math.random()*96+2).toFixed(2)}%;width:${sz}px;height:${sz}px;--rd:${(Math.random()*14+13).toFixed(1)}s;--rdel:${(Math.random()*18).toFixed(1)}s;--mo:${(Math.random()*.35+.25).toFixed(2)}"></span>`;
   }
   stars.innerHTML = html;
+  // 流れ星: 4〜10秒おきに右上エリアから1本
+  (function spawnShooting() {
+    const el = document.createElement('span');
+    el.className = 'shooting';
+    el.style.left = (55 + Math.random() * 40) + '%';
+    el.style.top = (Math.random() * 22) + '%';
+    el.style.setProperty('--sd', (1.1 + Math.random() * 0.7).toFixed(2) + 's');
+    stars.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+    setTimeout(spawnShooting, 4000 + Math.random() * 6000);
+  })();
 })();
 
 const cmd = document.getElementById('cmd');
@@ -209,15 +265,25 @@ html += `<a href="status.html"><span class="cursor">▶</span>ステータス</a
 html += `<a href="sound.html" style="font-size:15px;letter-spacing:4px;color:#9db8e8"><span class="cursor">▶</span>おんがくの間</a>`;
 cmd.innerHTML = html;
 
-// 「冒険に出る」で足音を鳴らしてから出発
+// 遷移演出: 冒険=足音+次の曲を先に鳴らす / ステータス=決定チャイム(曲は同じいにしえの調べ)
 cmd.addEventListener('click', e => {
-  const a = e.target.closest('a[href="quest.html"]');
-  if (!a || !window.BGM || !BGM.footsteps) return;
-  e.preventDefault();
-  BGM.footsteps(() => { location.href = 'quest.html'; });
+  const a = e.target.closest('a'); if (!a || !window.BGM) return;
+  const href = a.getAttribute('href');
+  if (href === 'quest.html') {
+    e.preventDefault();
+    if (BGM.isOn()) BGM.play('quest');   // 出発と同時にバトル曲へ切替(音のブリッジ)
+    BGM.footsteps(() => setTimeout(() => { location.href = href; }, 320));
+  } else if (href === 'status.html') {
+    e.preventDefault();
+    BGM.chime(() => { location.href = href; });
+  } else if (href === 'boss.html') {
+    e.preventDefault();
+    if (BGM.isOn()) BGM.play('boss1');
+    BGM.footsteps(() => setTimeout(() => { location.href = href; }, 320));
+  }
 });
 </script>
-<script src="bgm.js?v=8"></script>
+<script src="bgm.js?v=9"></script>
 <script>BGM.mount('prelude', 'right');</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /* 採用クエスト 共有BGMエンジン v4 (オーケストラ音源のシームレスループ再生)
-   使い方: <script src="bgm.js?v=8"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
+   使い方: <script src="bgm.js?v=9"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
    音源: bgm/*.m4a (fluidsynth+GM音源でレンダリングしたオリジナル曲)
    設定はlocalStorageでページ間共有: saiyo-bgm-on ('on'/'off'), saiyo-bgm-vol ('0'〜'1') */
 const BGM = (() => {
@@ -74,24 +74,52 @@ const BGM = (() => {
   }
 
   /* 足音SE「タッタッタッタ」(4歩) — 効果音設定に従う。doneは足音後に呼ばれる */
-  function footsteps(done) {
+  async function footsteps(done) {
     if (localStorage.getItem('saiyo-quiz-sound') === 'off') { if (done) done(); return; }
     const c = ctx();
+    try { if (c.state === 'suspended') await c.resume(); } catch (e) {}
     const steps = 4, gap = 0.115;
+    const t0 = c.currentTime + 0.03;
     for (let i = 0; i < steps; i++) {
-      const t = c.currentTime + 0.02 + i * gap;
-      const len = 0.055;
+      const t = t0 + i * gap;
+      const len = 0.06;
       const buf = c.createBuffer(1, Math.floor(c.sampleRate * len), c.sampleRate);
       const d = buf.getChannelData(0);
       for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 2.2);
       const src = c.createBufferSource(); src.buffer = buf;
       const f = c.createBiquadFilter(); f.type = 'lowpass';
-      f.frequency.value = 850 + (i % 2) * 300;   // 左右の足で音色を少し変える
-      const g = c.createGain(); g.gain.value = 0.6;
+      f.frequency.value = 900 + (i % 2) * 350;
+      const g = c.createGain(); g.gain.value = 1.0;
       src.connect(f); f.connect(g); g.connect(c.destination);
       src.start(t);
     }
-    if (done) setTimeout(done, steps * gap * 1000 + 60);
+    if (done) setTimeout(done, steps * gap * 1000 + 100);
+  }
+
+  /* 決定音「キラリン」(ステータスを開くとき等のクリスタル・チャイム) */
+  async function chime(done) {
+    if (localStorage.getItem('saiyo-quiz-sound') === 'off') { if (done) done(); return; }
+    const c = ctx();
+    try { if (c.state === 'suspended') await c.resume(); } catch (e) {}
+    const t0 = c.currentTime + 0.03;
+    [[1318.5, 0, .30], [1760, .07, .30], [2637, .14, .40]].forEach(([f, dt, dur]) => {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t0 + dt);
+      g.gain.linearRampToValueAtTime(.28, t0 + dt + .012);
+      g.gain.exponentialRampToValueAtTime(.001, t0 + dt + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t0 + dt); o.stop(t0 + dt + dur + .05);
+    });
+    const o2 = c.createOscillator(), g2 = c.createGain();  // きらめき
+    o2.type = 'sine'; o2.frequency.setValueAtTime(3520, t0 + .2);
+    o2.frequency.exponentialRampToValueAtTime(5274, t0 + .42);
+    g2.gain.setValueAtTime(0, t0 + .2);
+    g2.gain.linearRampToValueAtTime(.10, t0 + .23);
+    g2.gain.exponentialRampToValueAtTime(.001, t0 + .5);
+    o2.connect(g2); g2.connect(c.destination);
+    o2.start(t0 + .2); o2.stop(t0 + .55);
+    if (done) setTimeout(done, 430);
   }
 
   /* ⚙️ 設定UI + 初回操作での自動再生 */
@@ -127,8 +155,10 @@ const BGM = (() => {
     paintSe();
     seBtn.addEventListener('click', () => { localStorage.setItem(SE_KEY, seOn() ? 'off' : 'on'); paintSe(); });
 
-    // ブラウザの自動再生制限: 最初のタップ/クリック/キーで開始
-    const kick = () => { if (isOn() && !current) play(name); };
+    // まず即時再生を試みる(コンテキストがsuspendedでも音源を待機させておく)
+    if (isOn()) { try { play(name); } catch (e) {} }
+    // 自動再生がブロックされた場合: 最初のタップ/クリック/キーでresume→即座に鳴る
+    const kick = () => { if (!isOn()) return; if (!current) play(name); else { try { ctx(); } catch (e) {} } };
     if (!gestureBound) {
       gestureBound = true;
       ['pointerdown', 'keydown', 'touchstart'].forEach(ev =>
@@ -136,5 +166,5 @@ const BGM = (() => {
     }
   }
 
-  return { mount, play, stop, setVol, isOn, footsteps };
+  return { mount, play, stop, setVol, isOn, footsteps, chime };
 })();
