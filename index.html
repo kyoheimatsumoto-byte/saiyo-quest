@@ -252,32 +252,33 @@ document.getElementById('pinfo').innerHTML =
 })();
 
 const cmd = document.getElementById('cmd');
+const dq = '?d=' + MENU.date;   // 日替わりキャッシュバスター
 let html = '';
 if (MENU.mode === 'boss') {
-  html += `<a class="boss" href="boss.html"><span class="cursor">▶</span>⚠️ ボスが　あらわれた！</a>`;
+  html += `<a class="boss" href="boss.html${dq}">><span class="cursor">▶</span>⚠️ ボスが　あらわれた！</a>`;
   html += `<div class="locked">ボスを倒すまで　通常の冒険には出られない</div>`;
 } else if (MENU.mode === 'job_select') {
-  html += `<a class="boss" href="boss.html"><span class="cursor">▶</span>🌟 女神が　待っている</a>`;
+  html += `<a class="boss" href="boss.html${dq}">><span class="cursor">▶</span>🌟 女神が　待っている</a>`;
 } else {
-  html += `<a href="quest.html"><span class="cursor">▶</span>冒険に出る</a>`;
+  html += `<a href="quest.html${dq}"><span class="cursor">▶</span>冒険に出る</a>`;
 }
-html += `<a href="status.html"><span class="cursor">▶</span>ステータス</a>`;
-html += `<a href="sound.html" style="font-size:15px;letter-spacing:4px;color:#9db8e8"><span class="cursor">▶</span>おんがくの間</a>`;
+html += `<a href="status.html${dq}"><span class="cursor">▶</span>ステータス</a>`;
+html += `<a href="sound.html${dq}" style="font-size:15px;letter-spacing:4px;color:#9db8e8"><span class="cursor">▶</span>おんがくの間</a>`;
 cmd.innerHTML = html;
 
 // 遷移演出: 冒険=足音+次の曲を先に鳴らす / ステータス=決定チャイム(曲は同じいにしえの調べ)
 cmd.addEventListener('click', e => {
   const a = e.target.closest('a'); if (!a || !window.BGM) return;
   const href = a.getAttribute('href');
-  if (href === 'quest.html') {
+  if (href.startsWith('quest.html')) {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('quest');   // 出発と同時にバトル曲へ切替(音のブリッジ)
     BGM.footsteps(() => setTimeout(() => { location.href = href; }, 320));
-  } else if (href === 'status.html') {
+  } else if (href.startsWith('status.html')) {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('status');   // 帳簿の曲へブリッジ
     BGM.chime(() => setTimeout(() => { location.href = href; }, 150));
-  } else if (href === 'boss.html') {
+  } else if (href.startsWith('boss.html')) {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('boss1');
     BGM.footsteps(() => setTimeout(() => { location.href = href; }, 320));
