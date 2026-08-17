@@ -1,5 +1,5 @@
 /* 採用クエスト 共有BGMエンジン v4 (オーケストラ音源のシームレスループ再生)
-   使い方: <script src="bgm.js?v=5"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
+   使い方: <script src="bgm.js?v=6"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
    音源: bgm/*.m4a (fluidsynth+GM音源でレンダリングしたオリジナル曲)
    設定はlocalStorageでページ間共有: saiyo-bgm-on ('on'/'off'), saiyo-bgm-vol ('0'〜'1') */
 const BGM = (() => {
@@ -73,6 +73,27 @@ const BGM = (() => {
     if (master && current) master.gain.value = v;
   }
 
+  /* 足音SE「タッタッタッタ」(4歩) — 効果音設定に従う。doneは足音後に呼ばれる */
+  function footsteps(done) {
+    if (localStorage.getItem('saiyo-quiz-sound') === 'off') { if (done) done(); return; }
+    const c = ctx();
+    const steps = 4, gap = 0.115;
+    for (let i = 0; i < steps; i++) {
+      const t = c.currentTime + 0.02 + i * gap;
+      const len = 0.055;
+      const buf = c.createBuffer(1, Math.floor(c.sampleRate * len), c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 2.2);
+      const src = c.createBufferSource(); src.buffer = buf;
+      const f = c.createBiquadFilter(); f.type = 'lowpass';
+      f.frequency.value = 850 + (i % 2) * 300;   // 左右の足で音色を少し変える
+      const g = c.createGain(); g.gain.value = 0.6;
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(t);
+    }
+    if (done) setTimeout(done, steps * gap * 1000 + 60);
+  }
+
   /* ⚙️ 設定UI + 初回操作での自動再生 */
   function mount(name, side) {
     const pos = side === 'left' ? 'left:10px' : 'right:10px';
@@ -115,5 +136,5 @@ const BGM = (() => {
     }
   }
 
-  return { mount, play, stop, setVol, isOn };
+  return { mount, play, stop, setVol, isOn, footsteps };
 })();

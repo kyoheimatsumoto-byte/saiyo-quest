@@ -207,8 +207,16 @@ if (MENU.mode === 'boss') {
 html += `<a href="status.html"><span class="cursor">▶</span>ステータス</a>`;
 html += `<a href="sound.html" style="font-size:15px;letter-spacing:4px;color:#9db8e8"><span class="cursor">▶</span>おんがくの間</a>`;
 cmd.innerHTML = html;
+
+// 「冒険に出る」で足音を鳴らしてから出発
+cmd.addEventListener('click', e => {
+  const a = e.target.closest('a[href="quest.html"]');
+  if (!a || !window.BGM || !BGM.footsteps) return;
+  e.preventDefault();
+  BGM.footsteps(() => { location.href = 'quest.html'; });
+});
 </script>
-<script src="bgm.js?v=5"></script>
+<script src="bgm.js?v=6"></script>
 <script>BGM.mount('prelude', 'right');</script>
 </body>
 </html>
