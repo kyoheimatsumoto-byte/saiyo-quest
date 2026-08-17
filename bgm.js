@@ -1,5 +1,5 @@
 /* 採用クエスト 共有BGMエンジン v4 (オーケストラ音源のシームレスループ再生)
-   使い方: <script src="bgm.js?v=4"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
+   使い方: <script src="bgm.js?v=5"></script> のあと BGM.mount('prelude'|'quest'|'boss1'|'boss2'|'boss3', 'right'|'left')
    音源: bgm/*.m4a (fluidsynth+GM音源でレンダリングしたオリジナル曲)
    設定はlocalStorageでページ間共有: saiyo-bgm-on ('on'/'off'), saiyo-bgm-vol ('0'〜'1') */
 const BGM = (() => {
@@ -15,7 +15,7 @@ const BGM = (() => {
   const buffers = {};
 
   const isOn = () => localStorage.getItem(LS_ON) !== 'off';
-  const getVol = () => { const v = parseFloat(localStorage.getItem(LS_VOL)); return isNaN(v) ? 0.5 : v; };
+  const getVol = () => { const v = parseFloat(localStorage.getItem(LS_VOL)); return isNaN(v) ? 0.85 : v; };
 
   function ctx() {
     if (!actx) {
