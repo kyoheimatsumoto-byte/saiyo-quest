@@ -97,19 +97,36 @@ const BGM = (() => {
       ] };
   }
   function boss3Track() {
-    // 絶望(三全音の軋み・不穏な鐘)
-    const bell = Array.from({length: 32}, () => 0);
-    bell[0] = 72; bell[6] = 78; bell[12] = 73; bell[20] = 79; bell[26] = 74; bell[30] = 66;
-    const creep = Array.from({length: 32}, (_, i) => (i % 8 === 0) ? [36,37,38,37][i/8] : 0);
-    return { bpm: 66, steps: 32,
+    // 絶望(執拗なオスティナート+聖歌隊風コーラス+オーケストラヒット)
+    const ost = Array.from({length: 64}, () => 0);
+    const riffs = [
+      [45,45,48,45,46,45,44,45],   // A A C A | Bb A Ab A
+      [45,45,48,45,46,45,44,45],
+      [45,45,48,45,50,48,46,45],   // 上昇の気配
+      [45,46,47,48,49,50,51,52],   // 半音階で駆け上がる
+    ];
+    riffs.forEach((r, b) => r.forEach((n, i) => { ost[b*16 + i*2] = n; }));
+    const timp = Array.from({length: 64}, () => 0);
+    [0,6,8,14].forEach(i => { for (let b = 0; b < 3; b++) timp[b*16 + i] = 33; });
+    for (let i = 0; i < 16; i += 2) timp[48 + i] = 33;  // 最終小節は連打
+    // 聖歌隊風(デチューンした2枚重ねで唸らせる)
+    const choirChords = [[57,60,64],[58,61,65],[56,59,63],[57,61,64]];
+    const long = [];
+    choirChords.forEach((ch, b) => {
+      long.push({ s: b*16, m: ch, len: 16, wave: 'sawtooth', vol: 0.030 });
+      long.push({ s: b*16, m: ch.map(n => n + 0.07), len: 16, wave: 'sawtooth', vol: 0.024 });
+      long.push({ s: b*16, m: ch.map(n => n - 12), len: 16, wave: 'triangle', vol: 0.05 });
+    });
+    // オーケストラヒット(短い和音の一撃)
+    [[0,[45,52,57]],[10,[44,51,56]],[16,[45,52,57]],[26,[44,51,56]],
+     [32,[45,52,57]],[42,[46,53,58]],[48,[45,52,57]],[62,[45,52,57,60]]]
+      .forEach(([st, ch]) => long.push({ s: st, m: ch, len: 1.6, wave: 'sawtooth', vol: 0.085 }));
+    return { bpm: 112, steps: 64,
       layers: [
-        { wave: 'sine',     vol: 0.10, seq: bell, gate: 4.0 },
-        { wave: 'sawtooth', vol: 0.05, seq: creep, gate: 7.0 },
+        { wave: 'sawtooth', vol: 0.085, seq: ost, gate: 1.7 },
+        { wave: 'triangle', vol: 0.17, seq: timp, gate: 0.4 },
       ],
-      long: [
-        { s: 0,  m: [36, 42], len: 32, wave: 'sawtooth', vol: 0.030 },
-        { s: 0,  m: [36.06, 42.06], len: 32, wave: 'sawtooth', vol: 0.022 },
-      ] };
+      long };
   }
   const TRACKS = { prelude: preludeTrack, quest: questTrack, boss1: boss1Track, boss2: boss2Track, boss3: boss3Track };
 
