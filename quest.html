@@ -208,7 +208,7 @@ function renderStatus(bonusXp, leveledTo) {
       `<span class="statchip"><b>${s.subject}</b> ${s.rank}${s.note ? ` ${s.note}` : ''}</span>`).join('') + `</div>`;
   }
   if (G.cursed && G.cursed.length) {
-    html += `<div class="cursedbox">🟣 呪われた商材: ${G.cursed.map(c=>c.item).join('、')}<br>→ Lv.10のボスを倒すと　まとめて解呪される！</div>`;
+    html += `<div class="cursedbox">🟣 呪われた装備: ${G.cursed.map(c=>c.item).join('、')}<br>→ Lv.10のボスを倒すと　まとめて解呪される！</div>`;
   }
   el.innerHTML = html;
 }
@@ -351,7 +351,7 @@ function doGrade(fromRestore) {
       banner.textContent = `⚔️ ${memoji}${mname}を撃破！ +${xp}XP` + (q.uncurse ? `　🔓「${q.uncurse}」を解呪した！` : '');
       banner.className = 'result-banner ok';
     } else {
-      banner.textContent = `💥 ${memoji}${mname}の攻撃！ 商材が呪われた…（この魔物はボスの配下に加わる）`;
+      banner.textContent = `💥 ${memoji}${mname}の攻撃！ 装備が呪われた…（この魔物はボスの配下に加わる）`;
       banner.className = 'result-banner ng';
     }
     const ex = document.getElementById('expl' + q.no);
