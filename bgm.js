@@ -10,7 +10,7 @@ const BGM = (() => {
     quest:   'bgm/quest.m4a?v=3',
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',
-    boss3:   'bgm/boss3.m4a?v=3',
+    boss3:   'bgm/boss3.m4a?v=4',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
