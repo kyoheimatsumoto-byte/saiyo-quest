@@ -171,3 +171,6 @@ const BGM = (() => {
 
   return { mount, play, stop, setVol, isOn, footsteps, chime };
 })();
+/* const は window に載らないため、window.BGM を見ている呼び出し側のために明示的に公開する
+   （これが無いと menu の足音・BGMブリッジ、boss の BGM停止が黙って無効化される） */
+window.BGM = BGM;
