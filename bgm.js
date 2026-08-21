@@ -7,7 +7,7 @@ const BGM = (() => {
   const FILES = {
     prelude: 'bgm/prelude.m4a',
     status:  'bgm/status.m4a',
-    quest:   'bgm/quest.m4a?v=3',
+    quest:   'bgm/quest.m4a?v=4',
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',
     boss3:   'bgm/boss3.m4a?v=4',
@@ -49,7 +49,9 @@ const BGM = (() => {
     current = name;
     killSrc();
     master.gain.cancelScheduledValues(c.currentTime);
-    master.gain.setValueAtTime(getVol(), c.currentTime);
+    master.gain.setValueAtTime(0.0001, c.currentTime);
+    // いきなり最大音量で始まると唐突なので0.5秒でフェードイン（ループ自体は無加工）
+    master.gain.exponentialRampToValueAtTime(Math.max(0.0002, getVol()), c.currentTime + 0.5);
     try {
       const buf = await load(name);
       if (current !== name) return;  // 待っている間に停止/切替された

@@ -64,6 +64,10 @@
   .result.hit { color: #ffd24d; text-shadow: 0 0 12px rgba(255,210,77,.6); }
   .result.miss { color: #f0a0a0; }
   .note { color: #d8c49a; font-size: 12.5px; }
+  .askBtn { margin-top: 12px; border: 1px solid #ffe9a8; color: #ffe9a8; background: none;
+    border-radius: 8px; padding: 9px 14px; font-size: 13px; cursor: pointer;
+    font-family: inherit; width: 100%; }
+  .askBtn:active { background: rgba(255,233,168,.12); }
   /* 宝箱アニメ */
   #chest { font-size: 64px; text-align: center; line-height: 1.1; }
   #chest.shake { animation: shake .5s ease-in-out 3; }
@@ -240,6 +244,14 @@ function grade(fromRestore) {
       ? `<br>根拠：${Q.ref.url ? `<a href="${Q.ref.url}" target="_blank" rel="noopener">${Q.ref.label}</a>` : Q.ref.label}`
       : '');
 
+  if (!document.getElementById('askBtn')) {
+    const ab = document.createElement('button');
+    ab.className = 'askBtn'; ab.id = 'askBtn';
+    ab.textContent = '🙋 この問題についてClaudeに質問する';
+    ab.addEventListener('click', askClaude);
+    exp.after(ab);
+  }
+
   const newPieces = Math.min(7, GACHA.pieces + (ok ? 1 : 0));
   renderPieces(newPieces);
   const rb = document.getElementById('resbox');
@@ -272,6 +284,27 @@ function grade(fromRestore) {
   rb.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
+/* --- Claudeに質問する（冒険と同じ形式。本文をクリップボードにも入れる） --- */
+function askClaude() {
+  const q = GACHA.question;
+  const lines = [
+    '採用支援（飲食業界の採用コンサル）の実務知識を学習中です。以下の問題について質問があります。',
+    '', '【問題】ガチャ「お宝地図の欠片」（' + (q.subject || '時事') + '・高難度）', q.text, '',
+    '【選択肢】'];
+  q.choices.forEach((c, i) => lines.push(String.fromCharCode(65 + i) + '. ' + c));
+  lines.push('', '【正解】' + String.fromCharCode(65 + q.answer));
+  if (picked !== null && picked !== undefined) {
+    lines.push('【私が選んだ答え】' + String.fromCharCode(65 + picked) +
+               (picked === q.answer ? '（正解）' : '（不正解）'));
+  }
+  lines.push('', '【解説】', q.explanation);
+  if (q.ref && q.ref.label) lines.push('', '【根拠】' + q.ref.label + ' ' + (q.ref.url || ''));
+  lines.push('', '私の質問: ');
+  const ctx2 = lines.join('\n');
+  if (navigator.clipboard) navigator.clipboard.writeText(ctx2).catch(() => {});
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(ctx2), '_blank');
+}
+
 /* --- 復元（同じ日に開き直したとき） --- */
 (function restore() {
   try {
@@ -295,7 +328,7 @@ function grade(fromRestore) {
   } catch (e) {}
 })();
 </script>
-<script src="bgm.js?v=15"></script>
+<script src="bgm.js?v=16"></script>
 <script>BGM.mount('gacha', 'right');</script>
 </body>
 </html>
