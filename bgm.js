@@ -11,6 +11,8 @@ const BGM = (() => {
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',
     boss3:   'bgm/boss3.m4a?v=4',
+    gacha:   'bgm/gacha.m4a',
+    exboss:  'bgm/exboss.m4a',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};

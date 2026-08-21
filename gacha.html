@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>お宝地図の欠片｜採用クエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#2a1a06">
+<style>
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body {
+    margin: 0; min-height: 100vh; color: #fff;
+    background:
+      radial-gradient(ellipse 100% 60% at 50% 0%, #4a3208 0%, rgba(74,50,8,0) 60%),
+      linear-gradient(180deg, #1a1103 0%, #2a1a06 55%, #140d02 100%);
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+    padding: 62px 12px 40px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+    line-height: 1.75;
+  }
+  .win {
+    width: 100%; max-width: 460px;
+    background: linear-gradient(180deg, #6b4a10 0%, #3a2708 100%);
+    border: 3px solid #ffe9a8; border-radius: 8px;
+    box-shadow: 0 0 0 3px #a8801e, 0 6px 24px rgba(0,0,0,.65);
+    padding: 14px 16px; font-size: 14px;
+  }
+  .head { display: flex; justify-content: space-between; align-items: center; }
+  .head .t { font-size: 16px; font-weight: 700; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; }
+  .head a { color: #ffe9a8; text-decoration: none; font-size: 13px; }
+  .pieces { text-align: center; }
+  .pieces .frag { font-size: 26px; letter-spacing: 6px; }
+  .pieces .frag .off { opacity: .22; }
+  .pieces .cap { color: #ffe9a8; font-size: 12.5px; letter-spacing: 2px; margin-top: 2px; }
+  .qtag {
+    display: inline-block; background: #a8801e; color: #fff8e0; font-size: 11.5px;
+    padding: 2px 10px; border-radius: 999px; letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .qtext { font-size: 15px; font-weight: 700; white-space: pre-wrap; }
+  .choice {
+    display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    background: #241705; border: 2px solid #7a5a18; color: #fff;
+    border-radius: 8px; padding: 11px 13px; margin-top: 8px; font-size: 14px;
+    font-family: inherit; cursor: pointer; line-height: 1.6;
+  }
+  .choice .mark { font-weight: 700; color: #d8b878; flex-shrink: 0; }
+  .choice.sel { border-color: #ffe9a8; background: #4a3208; }
+  .choice.correct { border-color: #4ade80; background: #14331f; }
+  .choice.wrong { border-color: #f87171; background: #3b1a1a; }
+  .choice:disabled { cursor: default; }
+  #drawBtn, #openBtn {
+    width: 100%; max-width: 460px; padding: 15px; font-size: 16px; font-weight: 800;
+    letter-spacing: 3px; border: 3px solid #ffe9a8; border-radius: 10px;
+    background: linear-gradient(180deg, #a8801e, #6b4a10); color: #fff8e0;
+    font-family: inherit; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.6);
+  }
+  #drawBtn:disabled { opacity: .45; cursor: default; }
+  .exp { border-top: 1px dashed rgba(255,233,168,.45); margin-top: 12px; padding-top: 10px;
+         font-size: 13.5px; white-space: pre-wrap; }
+  .exp a { color: #9fd0ff; }
+  .result { text-align: center; font-size: 17px; font-weight: 800; letter-spacing: 2px; }
+  .result.hit { color: #ffd24d; text-shadow: 0 0 12px rgba(255,210,77,.6); }
+  .result.miss { color: #f0a0a0; }
+  .note { color: #d8c49a; font-size: 12.5px; }
+  /* 宝箱アニメ */
+  #chest { font-size: 64px; text-align: center; line-height: 1.1; }
+  #chest.shake { animation: shake .5s ease-in-out 3; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0) rotate(0); }
+    25% { transform: translateX(-6px) rotate(-4deg); }
+    75% { transform: translateX(6px) rotate(4deg); }
+  }
+  #burst { position: fixed; inset: 0; pointer-events: none; z-index: 400; display: none; }
+  #burst .ray {
+    position: absolute; left: 50%; top: 45%; width: 3px; height: 42vh;
+    background: linear-gradient(180deg, rgba(255,225,140,.95), transparent);
+    transform-origin: top center; opacity: 0;
+    animation: rayout 1.1s ease-out forwards;
+  }
+  @keyframes rayout { 0% { opacity: 0; scale: 0 1; } 30% { opacity: 1; } 100% { opacity: 0; scale: 1 1.2; } }
+</style>
+</head>
+<body>
+<div id="burst"></div>
+
+<div class="win head">
+  <span class="t">🗺 お宝地図の欠片</span>
+  <a href="./">◀ メニューへもどる</a>
+</div>
+
+<div class="win pieces">
+  <div class="frag" id="frag"></div>
+  <div class="cap" id="fragCap"></div>
+</div>
+
+<div class="win" id="intro">
+  <div id="chest">🎁</div>
+  <div style="text-align:center;margin-top:6px">
+    古い宝箱がひとつ。<br>
+    <span class="note">中には「その日の業界の風」が封じられている。<br>正しく読み解けば、地図の欠片が手に入る。</span>
+  </div>
+</div>
+
+<button id="drawBtn">🎁 宝箱を　あける</button>
+
+<div class="win" id="qbox" style="display:none">
+  <div class="qtag" id="qtag">時事（高難度）</div>
+  <div class="qtext" id="qtext"></div>
+  <div id="choices"></div>
+  <div class="exp" id="exp" style="display:none"></div>
+</div>
+
+<div class="win" id="resbox" style="display:none">
+  <div class="result" id="resText"></div>
+  <div class="note" id="resNote" style="text-align:center;margin-top:6px"></div>
+</div>
+
+<script>
+const GACHA = {"date": "2026-08-20", "pieces": 0, "question": {"subject": "時事", "text": "2026年、コロワイドが完全子会社化した「C-United」に関する記述として正しいものはどれか。", "choices": ["取得額は約120億円で、対象は「サンマルクカフェ」など約200店舗だった", "取得額は約441億円で、対象は「珈琲館」「カフェ・ベローチェ」「カフェ・ド・クリエ」など約563店舗", "取得額は約441億円だが、対象は居酒屋業態のみで、カフェ事業は含まれない", "取得額は約1,200億円で、飲食業界のM&A史上最大の案件となった", "買収は発表されたものの、独占禁止法の審査により最終的に中止された"], "answer": 1, "explanation": "コロワイドの子会社コロワイドMDが、C-Unitedの全株式を約441億円で取得して完全子会社化した（2026年4月1日付）。C-Unitedは「珈琲館」「カフェ・ベローチェ」「カフェ・ド・クリエ」を中心に国内563店舗を展開するカフェチェーンで、コロナ禍後も持続的に成長していた点が評価された。\nAは金額・ブランドとも誤り、Cはカフェ事業そのものが取得対象なので誤り、Dの1,200億円は過大、Eは実際に成立しているので誤り。\n📌 2026年1〜6月期の飲食業界M&Aは62件（前年同期比+29.1%）で、その金額1位がこの案件。\n💼 実務への影響: 大手のカフェ業態への集中は、「出店したい業態ランキング2025」でカフェが居酒屋を初めて逆転した流れと符合する。担当企業がカフェ業態を持つなら、大手チェーンとの採用競合が強まる前提で賃金水準・シフト条件を見直す提案材料になる。", "ref": {"label": "日本経済新聞（コロワイド、C-Unitedを440億円で買収）", "url": "https://www.nikkei.com/article/DGXZQOUC061RZ0W6A300C2000000/"}}};
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzm7QZ9RGFKspuD9fZQQ7B8pTYpcNK_XGm-r8gm9O4-Ee97hhRfvy2Ew-JJK9CkNmXeYg/exec";
+const SAVE_KEY = 'saiyo-gacha-' + GACHA.date;
+let picked = null, done = false;
+
+/* --- 欠片の表示 --- */
+function renderPieces(n) {
+  const total = 7;
+  let h = '';
+  for (let i = 0; i < total; i++) h += `<span class="${i < n ? 'on' : 'off'}">🗺</span>`;
+  document.getElementById('frag').innerHTML = h;
+  document.getElementById('fragCap').textContent =
+    n >= total ? `欠片 ${n}/${total}　地図は完成した！ 明朝、黄金竜が目を覚ます…`
+               : `欠片 ${n}/${total}　（7枚集めると EXボス「黄金竜ゴルドラ」が現れる）`;
+}
+renderPieces(GACHA.pieces);
+
+/* --- 効果音（端末内で合成） --- */
+let actx = null;
+function ctx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function soundOn() { return localStorage.getItem('saiyo-quiz-sound') !== 'off'; }
+function sfxChest() {   // 宝箱がきしむ音
+  if (!soundOn()) return;
+  const c = ctx(), t = c.currentTime;
+  for (let i = 0; i < 3; i++) {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = 'square'; o.frequency.setValueAtTime(180 + i * 40, t + i * .12);
+    g.gain.setValueAtTime(.06, t + i * .12);
+    g.gain.exponentialRampToValueAtTime(.001, t + i * .12 + .1);
+    o.connect(g); g.connect(c.destination); o.start(t + i * .12); o.stop(t + i * .12 + .12);
+  }
+}
+function sfxHit() {     // 欠片を手に入れた
+  if (!soundOn()) return;
+  const c = ctx(), t = c.currentTime;
+  [1046, 1318, 1568, 2093].forEach((f, i) => {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = 'triangle'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t + i * .1);
+    g.gain.linearRampToValueAtTime(.2, t + i * .1 + .02);
+    g.gain.exponentialRampToValueAtTime(.001, t + i * .1 + .45);
+    o.connect(g); g.connect(c.destination); o.start(t + i * .1); o.stop(t + i * .1 + .5);
+  });
+}
+function sfxMiss() {
+  if (!soundOn()) return;
+  const c = ctx(), t = c.currentTime;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = 'sawtooth'; o.frequency.setValueAtTime(320, t);
+  o.frequency.exponentialRampToValueAtTime(90, t + .5);
+  g.gain.setValueAtTime(.14, t); g.gain.exponentialRampToValueAtTime(.001, t + .55);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + .6);
+}
+function burst() {      // 金色の光条
+  const b = document.getElementById('burst');
+  b.style.display = 'block'; b.innerHTML = '';
+  for (let i = 0; i < 14; i++) {
+    const d = document.createElement('div');
+    d.className = 'ray';
+    d.style.transform = `rotate(${i * (360 / 14)}deg)`;
+    d.style.animationDelay = (i * 0.02) + 's';
+    b.appendChild(d);
+  }
+  setTimeout(() => { b.style.display = 'none'; }, 1400);
+}
+
+/* --- 宝箱をあける --- */
+document.getElementById('drawBtn').addEventListener('click', () => {
+  if (done) return;
+  const chest = document.getElementById('chest');
+  chest.classList.add('shake');
+  sfxChest();
+  setTimeout(() => {
+    document.getElementById('intro').style.display = 'none';
+    document.getElementById('drawBtn').style.display = 'none';
+    document.getElementById('qbox').style.display = 'block';
+    document.getElementById('qbox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 620);
+});
+
+/* --- 問題の描画 --- */
+const Q = GACHA.question;
+document.getElementById('qtext').textContent = Q.text;
+document.getElementById('qtag').textContent = (Q.subject || '時事') + '（高難度）';
+const chBox = document.getElementById('choices');
+Q.choices.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.className = 'choice'; b.dataset.i = i;
+  b.innerHTML = `<span class="mark">${String.fromCharCode(65 + i)}</span><span>${c}</span>`;
+  chBox.appendChild(b);
+});
+
+chBox.addEventListener('click', e => {
+  const btn = e.target.closest('.choice');
+  if (!btn || done) return;
+  document.querySelectorAll('.choice').forEach(el => el.classList.remove('sel'));
+  btn.classList.add('sel');
+  picked = parseInt(btn.dataset.i, 10);
+  grade();
+});
+
+/* --- 採点（1問なので選んだ時点で確定） --- */
+function grade(fromRestore) {
+  done = true;
+  const ok = picked === Q.answer;
+  document.querySelectorAll('.choice').forEach(el => {
+    const i = parseInt(el.dataset.i, 10);
+    el.disabled = true;
+    if (i === Q.answer) el.classList.add('correct');
+    else if (i === picked) el.classList.add('wrong');
+  });
+  const exp = document.getElementById('exp');
+  exp.style.display = 'block';
+  exp.innerHTML = Q.explanation.replace(/\n/g, '<br>') +
+    (Q.ref && Q.ref.label
+      ? `<br>根拠：${Q.ref.url ? `<a href="${Q.ref.url}" target="_blank" rel="noopener">${Q.ref.label}</a>` : Q.ref.label}`
+      : '');
+
+  const newPieces = Math.min(7, GACHA.pieces + (ok ? 1 : 0));
+  renderPieces(newPieces);
+  const rb = document.getElementById('resbox');
+  rb.style.display = 'block';
+  const rt = document.getElementById('resText'), rn = document.getElementById('resNote');
+  if (ok) {
+    rt.className = 'result hit';
+    rt.textContent = `✨ 地図の欠片を　手に入れた！（${newPieces}/7）`;
+    rn.textContent = newPieces >= 7
+      ? '地図が完成した。明朝、黄金竜ゴルドラが待つ。'
+      : `あと ${7 - newPieces} 枚で 黄金竜ゴルドラが目を覚ます。`;
+    if (!fromRestore) { burst(); sfxHit(); }
+  } else {
+    rt.className = 'result miss';
+    rt.textContent = '宝箱は　空っぽだった…';
+    rn.textContent = '欠片は得られなかった。宝箱は明日また現れる。';
+    if (!fromRestore) sfxMiss();
+  }
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ picked, done: true })); } catch (e) {}
+
+  if (!fromRestore && SUBMIT_URL && !SUBMIT_URL.startsWith('__')) {
+    try {
+      fetch(SUBMIT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ date: 'saiyo-gacha-' + GACHA.date, score: ok ? 1 : 0, wrong: ok ? [] : [1] })
+      });
+    } catch (e) {}
+  }
+  rb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* --- 復元（同じ日に開き直したとき） --- */
+(function restore() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d && d.done) {
+      picked = d.picked;
+      document.getElementById('intro').style.display = 'none';
+      document.getElementById('drawBtn').style.display = 'none';
+      document.getElementById('qbox').style.display = 'block';
+      const el = document.querySelector(`.choice[data-i="${picked}"]`);
+      if (el) el.classList.add('sel');
+      grade(true);
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.style.cssText = 'text-align:center;margin-top:8px';
+      note.textContent = '※ 宝箱は1日1回。次の宝箱は明朝あらわれる。';
+      document.getElementById('resbox').appendChild(note);
+    }
+  } catch (e) {}
+})();
+</script>
+<script src="bgm.js?v=14"></script>
+<script>BGM.mount('gacha', 'right');</script>
+</body>
+</html>
