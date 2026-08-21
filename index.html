@@ -217,7 +217,7 @@
 <div class="foot" id="dateLine"></div>
 
 <script>
-const MENU = {"date": "2026-08-20", "weekday": "木", "mode": "quest", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 5, "lap": 1}};
+const MENU = {"date": "2026-08-21", "weekday": "金", "mode": "quest", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 6, "lap": 1}, "map_pieces": 0, "gacha_done": false, "ex_boss": false};
 document.getElementById('dateLine').textContent =
   `${MENU.date}（${MENU.weekday}）　毎朝9:05　あたらしい依頼が届く`;
 document.getElementById('pinfo').innerHTML =
@@ -262,7 +262,12 @@ if (MENU.mode === 'boss') {
 } else {
   html += `<a href="quest.html${dq}"><span class="cursor">▶</span>冒険に出る</a>`;
 }
+if (MENU.ex_boss) {
+  html += `<a class="boss" style="color:#ffe9a8" href="boss.html${dq}&ex=1"><span class="cursor">▶</span>🐉 黄金竜が　目を覚ました！</a>`;
+}
 html += `<a href="status.html${dq}"><span class="cursor">▶</span>ステータス</a>`;
+html += `<a href="gacha.html${dq}"><span class="cursor">▶</span>${MENU.gacha_done ? 'ガチャ（本日ぶんは開封済み）' : '🎁 ガチャ'}` +
+        `${MENU.map_pieces != null ? `<span style="font-size:12px;letter-spacing:1px;color:#ffd24d;margin-left:6px">🗺${MENU.map_pieces}/7</span>` : ''}</a>`;
 html += `<a href="sound.html${dq}" style="font-size:15px;letter-spacing:4px;color:#9db8e8"><span class="cursor">▶</span>おんがくの間</a>`;
 cmd.innerHTML = html;
 
@@ -278,6 +283,10 @@ cmd.addEventListener('click', e => {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('status');   // 帳簿の曲へブリッジ
     BGM.chime(() => setTimeout(() => { location.href = href; }, 150));
+  } else if (href.startsWith('gacha.html')) {
+    e.preventDefault();
+    if (BGM.isOn()) BGM.play('status');
+    BGM.chime(() => setTimeout(() => { location.href = href; }, 150));
   } else if (href.startsWith('boss.html')) {
     e.preventDefault();
     if (BGM.isOn()) BGM.play('boss1');
@@ -285,7 +294,7 @@ cmd.addEventListener('click', e => {
   }
 });
 </script>
-<script src="bgm.js?v=13"></script>
+<script src="bgm.js?v=14"></script>
 <script>BGM.mount('prelude', 'right');</script>
 </body>
 </html>

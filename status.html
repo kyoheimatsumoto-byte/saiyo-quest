@@ -39,16 +39,58 @@
   td { padding: 2px 4px; text-align: right; }
   td.subj { text-align: left; font-weight: 700; }
   td.subj .star { color: #ffd24d; }
-  .dots { color: #5868d8; }
   .list { font-size: 13px; }
   .muted { color: #8890d8; font-size: 12.5px; }
-  .rival { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 13px; }
-  .rival img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,.45); flex-shrink: 0; }
-  .rival .rmid { flex: 1; min-width: 0; }
-  .rival .rn { font-weight: 700; }
-  .rival.destiny .rn { color: #ff9e9e; }
-  .rival .rl { color: #cdd6ff; flex-shrink: 0; }
-  .rivalnote { margin-top: 6px; font-size: 12.5px; color: #ffd24d; border-top: 1px dashed #5868d8; padding-top: 6px; }
+  /* 難易度 */
+  .diffbox { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .stars { font-size: 18px; letter-spacing: 3px; color: #ffd24d; text-shadow: 1px 1px 0 #000; }
+  .stars .off { color: #46508f; }
+  .difftag { font-size: 11px; padding: 2px 9px; border-radius: 999px; border: 1px solid; }
+  .difftag.prov { color: #ffd24d; border-color: #ffd24d; }
+  .difftag.fix { color: #8fe8a0; border-color: #8fe8a0; }
+  /* 宝物 */
+  .treasure { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tcard {
+    flex: 1 1 30%; min-width: 96px; background: rgba(5,10,60,.5); border: 1px solid #5868d8;
+    border-radius: 8px; padding: 8px 6px; text-align: center;
+  }
+  .tcard .ic { font-size: 20px; line-height: 1.2; }
+  .tcard .nm { font-size: 10.5px; color: #cdd6ff; letter-spacing: .5px; }
+  .tcard .vl { font-size: 15px; font-weight: 800; color: #ffd24d; }
+  .frag { font-size: 15px; letter-spacing: 2px; }
+  .frag .off { opacity: .25; }
+  /* 番付（表彰台） */
+  .banner { text-align: center; font-size: 13px; color: #ffd24d; margin-bottom: 10px; font-weight: 700; }
+  .podium { display: flex; align-items: flex-end; justify-content: center; gap: 6px; }
+  .pcol { display: flex; flex-direction: column; align-items: center; width: 31%; }
+  .face {
+    border-radius: 8px; border: 2px solid rgba(255,255,255,.5); overflow: hidden;
+    background: #0a1050; display: flex; align-items: center; justify-content: center;
+  }
+  .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .face.me { border-color: #ffd24d; box-shadow: 0 0 0 2px #a8801e, 0 0 14px rgba(255,210,77,.55); }
+  .face.me img { object-fit: contain; image-rendering: pixelated; }
+  .pcol.r1 .face { width: 84px; height: 84px; }
+  .pcol.r2 .face, .pcol.r3 .face { width: 64px; height: 64px; }
+  .crown { font-size: 20px; line-height: 1; margin-bottom: 2px; }
+  .pname { font-size: 10.5px; text-align: center; margin-top: 3px; line-height: 1.35; word-break: break-all; }
+  .pname.me { color: #ffd24d; font-weight: 800; }
+  .pacc { font-size: 12px; font-weight: 800; color: #a0e8ff; }
+  .block {
+    width: 100%; margin-top: 5px; border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #3858e8, #101a6a); border: 1px solid #6a7ae0;
+    border-bottom: none; text-align: center; font-weight: 800; font-size: 15px;
+    text-shadow: 1px 1px 0 #000; color: #fff;
+  }
+  .pcol.r1 .block { height: 46px; line-height: 46px; }
+  .pcol.r2 .block { height: 32px; line-height: 32px; }
+  .pcol.r3 .block { height: 22px; line-height: 22px; }
+  .podium-base { width: 100%; height: 5px; background: #6a7ae0; border-radius: 0 0 3px 3px; }
+  .rest { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .rcell { display: flex; flex-direction: column; align-items: center; width: 17%; min-width: 54px; }
+  .rcell .face { width: 44px; height: 44px; }
+  .rcell .rk { font-size: 11px; color: #cdd6ff; font-weight: 700; }
+  .rivalnote { margin-top: 10px; font-size: 12.5px; color: #ffd24d; border-top: 1px dashed #5868d8; padding-top: 8px; }
 </style>
 </head>
 <body>
@@ -64,15 +106,18 @@
   </div>
   <div id="basic" style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center"></div>
 </div>
+
+<div class="ffwin"><div class="sect">⚔️ しれんの　かいそう（難易度）</div><div class="diffbox" id="diff"></div></div>
+<div class="ffwin"><div class="sect">💎 たからもの</div><div class="treasure" id="treasure"></div></div>
 <div class="ffwin"><div class="sect">ステータス（かず＝るいけい正解　りつ＝正答率）</div><table id="stats"></table></div>
 <div class="ffwin"><div class="sect">🛡 そうび</div><div class="list" id="items"></div></div>
 <div class="ffwin"><div class="sect">🏅 バッジ</div><div class="list" id="badges"></div></div>
 <div class="ffwin"><div class="sect">📜 しょくれき</div><div class="list" id="history"></div></div>
 <div class="ffwin"><div class="sect">🏆 じこベスト</div><div class="list" id="best"></div></div>
-<div class="ffwin"><div class="sect">⚔️ ライバルたち</div><div id="rivals"></div></div>
+<div class="ffwin"><div class="sect">⚔️ ギルド番付（正答率）</div><div id="rank"></div></div>
 
 <script>
-const S = {"date": "2026-08-20", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 5, "lap": 1, "xp_total_job": 200, "xp_in_level": 0, "next_need": 50, "streak": 4, "art": "art/sprite_yusha.png", "title": null}, "stats": [{"subject": "戦略", "star": false, "count": 3, "rate": "67%"}, {"subject": "マーケ", "star": false, "count": 4, "rate": "100%"}, {"subject": "媒体", "star": false, "count": 4, "rate": "75%"}, {"subject": "運用", "star": false, "count": 3, "rate": "100%"}, {"subject": "スカウト", "star": false, "count": 3, "rate": "100%"}, {"subject": "チャネル", "star": false, "count": 3, "rate": "67%"}, {"subject": "計算", "star": false, "count": 3, "rate": "33%"}, {"subject": "時事", "star": false, "count": 3, "rate": "67%"}], "items": [], "badges": [], "history": ["サイヨウ勇者（第1周・冒険中）"], "best": {"fastest_lap_days": null, "best_week_rate": null, "longest_streak": 4}, "rivals": [{"emoji": "📋", "name": "軍師ダンドリ", "level": 4, "lap": 1, "destiny": false, "art": "art/job_knight.jpg"}, {"emoji": "🎻", "name": "詩人カタリベ", "level": 4, "lap": 1, "destiny": false, "art": "art/job_bard.jpg"}, {"emoji": "💰", "name": "大商人バイタン", "level": 4, "lap": 1, "destiny": false, "art": "art/job_summoner.jpg"}, {"emoji": "🌀", "name": "修行僧グルグル", "level": 4, "lap": 1, "destiny": false, "art": "art/job_monk.jpg"}, {"emoji": "🥷", "name": "影のヒッコヌキ", "level": 4, "lap": 1, "destiny": false, "art": "art/job_ninja.jpg"}, {"emoji": "⚓", "name": "船長ツテヅル", "level": 4, "lap": 1, "destiny": false, "art": "art/job_sailor.jpg"}, {"emoji": "🧮", "name": "老師ソロバン", "level": 4, "lap": 1, "destiny": false, "art": "art/job_sanjutsu.jpg"}], "rival_line": "老師ソロバン『……計算の間だけは、まだお前に譲らんぞ』"};
+const S = {"date": "2026-08-21", "player": {"name": "きょうへい", "job": "サイヨウ勇者", "job_emoji": "🗡", "level": 6, "lap": 1, "xp_total_job": 260, "xp_in_level": 10, "next_need": 40, "streak": 5}, "stats": [{"subject": "戦略", "star": false, "count": 4, "rate": "75%"}, {"subject": "マーケ", "star": false, "count": 5, "rate": "100%"}, {"subject": "媒体", "star": false, "count": 5, "rate": "80%"}, {"subject": "運用", "star": false, "count": 3, "rate": "100%"}, {"subject": "スカウト", "star": false, "count": 4, "rate": "100%"}, {"subject": "チャネル", "star": false, "count": 4, "rate": "50%"}, {"subject": "計算", "star": false, "count": 4, "rate": "50%"}, {"subject": "時事", "star": false, "count": 4, "rate": "75%"}], "items": [], "badges": [], "history": [], "best": {"fastest_lap_days": null, "best_week_rate": null, "longest_streak": 5}, "rivals": [{"emoji": "📋", "name": "軍師ダンドリ", "level": 4, "lap": 1, "destiny": false}, {"emoji": "🎻", "name": "詩人カタリベ", "level": 4, "lap": 1, "destiny": false}, {"emoji": "💰", "name": "大商人バイタン", "level": 4, "lap": 1, "destiny": false}, {"emoji": "🌀", "name": "修行僧グルグル", "level": 4, "lap": 1, "destiny": false}, {"emoji": "🥷", "name": "影のヒッコヌキ", "level": 4, "lap": 1, "destiny": false}, {"emoji": "⚓", "name": "船長ツテヅル", "level": 4, "lap": 1, "destiny": false}, {"emoji": "🧮", "name": "老師ソロバン", "level": 4, "lap": 1, "destiny": false}], "rival_line": "🧮 老師ソロバンはLv.4を保ったまま黙々と算盤を弾く。「計算だけは、儂に敵う者はおらん」"};
 const p = S.player;
 if (p.art) { document.getElementById('jobart').src = p.art; }
 else { document.getElementById('heroLeft').style.display = 'none'; }
@@ -90,7 +135,32 @@ document.getElementById('basic').innerHTML =
   `<div class="row"><span class="k">けいけんち</span><span class="v">${p.xp_total_job}</span></div>` +
   `<div class="row"><span class="k">つぎのレベルまで</span><span class="v">あと ${p.next_need}</span></div>` +
   `<div class="xpbar"><div class="fill" style="width:${Math.min(100, Math.round(p.xp_in_level / 50 * 100))}%"></div></div>` +
+  `<div class="row"><span class="k">せいとうりつ</span><span class="v">${p.accuracy}%</span></div>` +
   `<div class="row"><span class="k">れんぞく</span><span class="v">🔥 ${p.streak}日</span></div>`;
+
+/* --- 難易度 --- */
+const DIFF_NAMES = ['', '見習いの依頼', '熟練の依頼', '至難の依頼', '極致の依頼', '伝説の依頼'];
+const D = S.difficulty || { today: 1, confirmed: 1, provisional: false };
+let starHtml = '';
+for (let i = 1; i <= 5; i++) starHtml += i <= D.today ? '★' : '<span class="off">★</span>';
+document.getElementById('diff').innerHTML =
+  `<div><div class="stars">${starHtml}</div>` +
+  `<div style="font-size:12.5px;color:#cdd6ff">Lv.${D.today}「${DIFF_NAMES[D.today]}」</div></div>` +
+  (D.provisional
+    ? `<span class="difftag prov">挑戦中<br>全問正解で確定</span>`
+    : `<span class="difftag fix">確定</span>`);
+
+/* --- たからもの --- */
+const T = S.treasures || { map_pieces: 0, gold_scale: 0, goldra: 0, ex_defeats: 0 };
+let fragHtml = '';
+for (let i = 0; i < 7; i++) fragHtml += `<span class="${i < T.map_pieces ? 'on' : 'off'}">🗺</span>`;
+document.getElementById('treasure').innerHTML =
+  `<div class="tcard" style="flex:1 1 100%"><div class="frag">${fragHtml}</div>` +
+  `<div class="nm">お宝地図の欠片 ${T.map_pieces}/7` +
+  (T.map_pieces >= 7 ? '　→ 明朝、黄金竜が目を覚ます' : `　（あと${7 - T.map_pieces}枚でEXボス）`) + `</div></div>` +
+  `<div class="tcard"><div class="ic">🛡</div><div class="vl">${T.gold_scale}<span style="font-size:11px">/2</span></div><div class="nm">黄金竜の逆鱗<br>放置ペナルティを防ぐ</div></div>` +
+  `<div class="tcard"><div class="ic">🐉</div><div class="vl">${T.goldra}<span style="font-size:11px">/2</span></div><div class="nm">召喚獣ゴルドラ<br>ボス戦で1問任せる</div></div>` +
+  `<div class="tcard"><div class="ic">🏆</div><div class="vl">${T.ex_defeats}</div><div class="nm">黄金竜<br>討伐回数</div></div>`;
 
 document.getElementById('stats').innerHTML =
   `<tr><th>しょうろ</th><th>かず</th><th>りつ</th></tr>` +
@@ -110,17 +180,53 @@ const b = S.best;
 document.getElementById('best').innerHTML =
   `・さいそく周回　${b.fastest_lap_days ? b.fastest_lap_days + '日' : '——'}<br>` +
   `・しゅうかん正答率ベスト　${b.best_week_rate || '——'}<br>` +
-  `・さいちょう連続記録　${b.longest_streak || 0}日`;
+  `・さいちょう連続記録　${b.longest_streak || 0}日<br>` +
+  `・とうたつ最高難易度　Lv.${b.highest_difficulty || 1}<br>` +
+  `・黄金竜　討伐回数　${b.ex_defeats || 0}回`;
 
-document.getElementById('rivals').innerHTML =
-  S.rivals.map(r =>
-    `<div class="rival${r.destiny ? ' destiny' : ''}">` +
-    (r.art ? `<img src="${r.art}" alt="">` : '') +
-    `<span class="rmid"><span class="rn">${r.emoji} ${r.name}${r.destiny ? '（宿命）' : ''}</span></span>` +
-    `<span class="rl">Lv.${r.level}・${r.lap}周目</span></div>`).join('') +
-  (S.rival_line ? `<div class="rivalnote">${S.rival_line}</div>` : '');
+/* --- ギルド番付（表彰台） --- */
+const entries = [{ name: p.name, art: p.art, accuracy: p.accuracy, me: true, emoji: p.job_emoji || '🗡' }]
+  .concat(S.rivals.map(r => ({ name: r.name, art: r.art, accuracy: r.accuracy, me: false, emoji: r.emoji })));
+// 同率のときは自分を上に置く
+entries.sort((a, b2) => (b2.accuracy - a.accuracy) || (a.me ? -1 : b2.me ? 1 : 0));
+const myRank = entries.findIndex(e => e.me) + 1;
+const MEDAL = ['', '🥇', '🥈', '🥉'];
+
+function faceHtml(e, cls) {
+  return `<div class="face ${cls || ''} ${e.me ? 'me' : ''}">` +
+         (e.art ? `<img src="${e.art}" alt="">` : `<span style="font-size:22px">${e.emoji}</span>`) +
+         `</div>`;
+}
+function colHtml(e, rank) {
+  return `<div class="pcol r${rank}">` +
+    (rank === 1 ? `<div class="crown">👑</div>` : '') +
+    faceHtml(e) +
+    `<div class="pname ${e.me ? 'me' : ''}">${e.me ? '★' + e.name : e.name}</div>` +
+    `<div class="pacc">${e.accuracy}%</div>` +
+    `<div class="block">${MEDAL[rank]}</div><div class="podium-base"></div></div>`;
+}
+
+// 追う相手（1つ上の順位）
+let chase = '';
+if (myRank > 1) {
+  const up = entries[myRank - 2], me = entries[myRank - 1];
+  chase = `　｜　${myRank - 1}位の${up.name}まで あと ${up.accuracy - me.accuracy}pt`;
+} else {
+  chase = '　｜　ギルド最強。追われる立場だ';
+}
+let html = `<div class="banner">⚔️ 8人中 ${myRank}位${chase}</div><div class="podium">`;
+[2, 1, 3].forEach(r => { if (entries[r - 1]) html += colHtml(entries[r - 1], r); });
+html += `</div><div class="rest">`;
+entries.slice(3).forEach((e, i) => {
+  html += `<div class="rcell">${faceHtml(e)}` +
+          `<div class="rk ${e.me ? 'pname me' : ''}">${i + 4}位</div>` +
+          `<div class="pname ${e.me ? 'me' : ''}" style="font-size:9.5px">${e.me ? '★' + e.name : e.name}</div>` +
+          `<div class="pacc" style="font-size:11px">${e.accuracy}%</div></div>`;
+});
+html += `</div>` + (S.rival_line ? `<div class="rivalnote">${S.rival_line}</div>` : '');
+document.getElementById('rank').innerHTML = html;
 </script>
-<script src="bgm.js?v=13"></script>
+<script src="bgm.js?v=14"></script>
 <script>BGM.mount('status', 'right');</script>
 </body>
 </html>
