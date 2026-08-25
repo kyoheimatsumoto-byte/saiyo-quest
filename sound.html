@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=25"></script>
+<script src="bgm.js?v=26"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -53,13 +53,9 @@ const SONGS = [
   { key: 'boss3',   name: '絶望の間で', where: 'ボス戦・3周目（ラスボス）' },
   { key: 'gacha',   name: '宝箱の間', where: 'ガチャ（お宝地図の欠片）' },
   { key: 'exboss',  name: 'トリプルフォー(裏ボス)', where: 'EXボス戦' },
-  { key: 'questH',  name: '【音色0】オーバードライブギター（現行）', where: 'リード音色の比較。曲・編成は全て同一' },
-  { key: 'questT1', name: '【音色1】弦のユニゾン', where: '太くて滑らか。オーケストラ寄り' },
-  { key: 'questT2', name: '【音色2】シンセブラス', where: '前に出る。ゲーム音楽の王道' },
-  { key: 'questT3', name: '【音色3】ノコギリ波リード', where: 'シャープで現代的' },
-  { key: 'questT4', name: '【音色4】ホルン', where: '太くて勇壮' },
-  { key: 'questN1', name: '【なし1】リードなし・バッキングのみ', where: '主旋律を完全に削除。リフとドラムの疾走だけ' },
-  { key: 'questN2', name: '【なし2】リードなし・リフで歌わせる', where: '専用の音色は立てず、刻みギターの5度が主題の輪郭を辿る' },
+  { key: 'questL1', name: '【新1】トランペット', where: 'リード第2弾＋動くベース。明るく英雄的' },
+  { key: 'questL2', name: '【新2】ロックオルガン', where: 'リード第2弾＋動くベース。バトル曲の王道' },
+  { key: 'questL3', name: '【新3】クリーンギター', where: 'リード第2弾＋動くベース。歪みなしで軽快' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>

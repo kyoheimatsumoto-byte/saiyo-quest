@@ -13,14 +13,10 @@ const BGM = (() => {
     boss3:   'bgm/boss3.m4a?v=4',
     gacha:   'bgm/gacha.m4a?v=2',
     exboss:  'bgm/exboss.m4a?v=2',
-    // ▼リード音色の比較用（採用が決まったら削除する）
-    questH:  'bgm/quest_h.m4a',
-    questT1: 'bgm/quest_t1.m4a',
-    questT2: 'bgm/quest_t2.m4a',
-    questT3: 'bgm/quest_t3.m4a',
-    questT4: 'bgm/quest_t4.m4a',
-    questN1: 'bgm/quest_n1.m4a',
-    questN2: 'bgm/quest_n2.m4a',
+    // ▼リード比較用・第2弾（採用が決まったら削除する）
+    questL1: 'bgm/quest_l1.m4a',
+    questL2: 'bgm/quest_l2.m4a',
+    questL3: 'bgm/quest_l3.m4a',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
