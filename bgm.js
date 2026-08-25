@@ -19,6 +19,8 @@ const BGM = (() => {
     questT2: 'bgm/quest_t2.m4a',
     questT3: 'bgm/quest_t3.m4a',
     questT4: 'bgm/quest_t4.m4a',
+    questN1: 'bgm/quest_n1.m4a',
+    questN2: 'bgm/quest_n2.m4a',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
