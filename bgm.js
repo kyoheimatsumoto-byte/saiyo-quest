@@ -13,10 +13,8 @@ const BGM = (() => {
     boss3:   'bgm/boss3.m4a?v=4',
     gacha:   'bgm/gacha.m4a?v=2',
     exboss:  'bgm/exboss.m4a?v=2',
-    // ▼編成＋メロディ比較用（案が決まったら削除する）
-    questD:  'bgm/quest_d.m4a',
-    questE:  'bgm/quest_e.m4a',
-    questF:  'bgm/quest_f.m4a',
+    // ▼試聴用（採用が決まったら削除する）
+    questG:  'bgm/quest_g.m4a',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
