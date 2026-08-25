@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=22"></script>
+<script src="bgm.js?v=23"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -54,6 +54,7 @@ const SONGS = [
   { key: 'gacha',   name: '宝箱の間', where: 'ガチャ（お宝地図の欠片）' },
   { key: 'exboss',  name: 'トリプルフォー(裏ボス)', where: 'EXボス戦' },
   { key: 'questG',  name: '【案G】採用と闘う者達・盛り上がり構成', where: '33秒で薄い→積上げ→主題→クライマックス→引き' },
+  { key: 'questH',  name: '【案H】案G改良（リード音色＋ダッダッダを手前から）', where: 'こちらが最新。案Gと聴き比べ用' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>

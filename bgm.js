@@ -15,6 +15,7 @@ const BGM = (() => {
     exboss:  'bgm/exboss.m4a?v=2',
     // ▼試聴用（採用が決まったら削除する）
     questG:  'bgm/quest_g.m4a',
+    questH:  'bgm/quest_h.m4a',
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
