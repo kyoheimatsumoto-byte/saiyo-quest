@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=23"></script>
+<script src="bgm.js?v=24"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -53,8 +53,11 @@ const SONGS = [
   { key: 'boss3',   name: '絶望の間で', where: 'ボス戦・3周目（ラスボス）' },
   { key: 'gacha',   name: '宝箱の間', where: 'ガチャ（お宝地図の欠片）' },
   { key: 'exboss',  name: 'トリプルフォー(裏ボス)', where: 'EXボス戦' },
-  { key: 'questG',  name: '【案G】採用と闘う者達・盛り上がり構成', where: '33秒で薄い→積上げ→主題→クライマックス→引き' },
-  { key: 'questH',  name: '【案H】案G改良（リード音色＋ダッダッダを手前から）', where: 'こちらが最新。案Gと聴き比べ用' },
+  { key: 'questH',  name: '【音色0】オーバードライブギター（現行）', where: 'リード音色の比較。曲・編成は全て同一' },
+  { key: 'questT1', name: '【音色1】弦のユニゾン', where: '太くて滑らか。オーケストラ寄り' },
+  { key: 'questT2', name: '【音色2】シンセブラス', where: '前に出る。ゲーム音楽の王道' },
+  { key: 'questT3', name: '【音色3】ノコギリ波リード', where: 'シャープで現代的' },
+  { key: 'questT4', name: '【音色4】ホルン', where: '太くて勇壮' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>
