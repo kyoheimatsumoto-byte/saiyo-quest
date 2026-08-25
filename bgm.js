@@ -7,7 +7,7 @@ const BGM = (() => {
   const FILES = {
     prelude: 'bgm/prelude.m4a',
     status:  'bgm/status.m4a',
-    quest:   'bgm/quest.m4a?v=6',
+    quest:   'bgm/quest.m4a?v=7',
     boss1:   'bgm/boss1.m4a',
     boss2:   'bgm/boss2.m4a?v=2',
     boss3:   'bgm/boss3.m4a?v=4',

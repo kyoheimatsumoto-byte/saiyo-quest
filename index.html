@@ -263,7 +263,7 @@ if (MENU.mode === 'boss') {
   html += `<a href="quest.html${dq}"><span class="cursor">▶</span>冒険に出る</a>`;
 }
 if (MENU.ex_boss) {
-  html += `<a class="boss" style="color:#ffe9a8" href="boss.html${dq}&ex=1"><span class="cursor">▶</span>🐉 黄金竜が　目を覚ました！</a>`;
+  html += `<a class="boss" style="color:#ffe9a8" href="boss.html${dq}&ex=1"><span class="cursor">▶</span>🐉 トリプルフォーが　目を覚めた！</a>`;
 }
 html += `<a href="status.html${dq}"><span class="cursor">▶</span>ステータス</a>`;
 html += `<a href="gacha.html${dq}"><span class="cursor">▶</span>${MENU.gacha_done ? 'ガチャ（本日ぶんは開封済み）' : '🎁 ガチャ'}` +
@@ -290,7 +290,7 @@ cmd.addEventListener('click', e => {
   }
 });
 </script>
-<script src="bgm.js?v=18"></script>
+<script src="bgm.js?v=19"></script>
 <script>BGM.mount('prelude', 'right');</script>
 </body>
 </html>

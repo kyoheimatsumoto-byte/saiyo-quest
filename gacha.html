@@ -134,8 +134,8 @@ function renderPieces(n) {
   for (let i = 0; i < total; i++) h += `<span class="${i < n ? 'on' : 'off'}">🗺</span>`;
   document.getElementById('frag').innerHTML = h;
   document.getElementById('fragCap').textContent =
-    n >= total ? `欠片 ${n}/${total}　地図は完成した！ 明朝、黄金竜が目を覚ます…`
-               : `欠片 ${n}/${total}　（7枚集めると EXボス「黄金竜ゴルドラ」が現れる）`;
+    n >= total ? `欠片 ${n}/${total}　地図は完成した！ 明朝、裏ボスが目を覚ます…`
+               : `欠片 ${n}/${total}　（7枚集めると 裏ボス「トリプルフォー」が現れる）`;
 }
 renderPieces(GACHA.pieces);
 
@@ -261,8 +261,8 @@ function grade(fromRestore) {
     rt.className = 'result hit';
     rt.textContent = `✨ 地図の欠片を　手に入れた！（${newPieces}/7）`;
     rn.textContent = newPieces >= 7
-      ? '地図が完成した。明朝、黄金竜ゴルドラが待つ。'
-      : `あと ${7 - newPieces} 枚で 黄金竜ゴルドラが目を覚ます。`;
+      ? '地図が完成した。明朝、トリプルフォーが待つ。'
+      : `あと ${7 - newPieces} 枚で トリプルフォーが目を覚ます。`;
     if (!fromRestore) { burst(); sfxHit(); }
   } else {
     rt.className = 'result miss';
@@ -328,7 +328,7 @@ function askClaude() {
   } catch (e) {}
 })();
 </script>
-<script src="bgm.js?v=18"></script>
+<script src="bgm.js?v=19"></script>
 <script>BGM.mount('gacha', 'right');</script>
 </body>
 </html>

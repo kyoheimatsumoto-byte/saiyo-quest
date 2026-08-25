@@ -157,10 +157,10 @@ for (let i = 0; i < 7; i++) fragHtml += `<span class="${i < T.map_pieces ? 'on' 
 document.getElementById('treasure').innerHTML =
   `<div class="tcard" style="flex:1 1 100%"><div class="frag">${fragHtml}</div>` +
   `<div class="nm">お宝地図の欠片 ${T.map_pieces}/7` +
-  (T.map_pieces >= 7 ? '　→ 明朝、黄金竜が目を覚ます' : `　（あと${7 - T.map_pieces}枚でEXボス）`) + `</div></div>` +
+  (T.map_pieces >= 7 ? '　→ 明朝、裏ボスが目を覚ます' : `　（あと${7 - T.map_pieces}枚でEXボス）`) + `</div></div>` +
   `<div class="tcard"><div class="ic">🛡</div><div class="vl">${T.gold_scale}<span style="font-size:11px">/2</span></div><div class="nm">黄金竜の逆鱗<br>放置ペナルティを防ぐ</div></div>` +
-  `<div class="tcard"><div class="ic">🐉</div><div class="vl">${T.goldra}<span style="font-size:11px">/2</span></div><div class="nm">召喚獣ゴルドラ<br>ボス戦で1問任せる</div></div>` +
-  `<div class="tcard"><div class="ic">🏆</div><div class="vl">${T.ex_defeats}</div><div class="nm">黄金竜<br>討伐回数</div></div>`;
+  `<div class="tcard"><div class="ic">🐉</div><div class="vl">${T.goldra}<span style="font-size:11px">/2</span></div><div class="nm">黄金竜ゴルドラ<br>ボス戦で1問任せる</div></div>` +
+  `<div class="tcard"><div class="ic">🏆</div><div class="vl">${T.ex_defeats}</div><div class="nm">トリプルフォー<br>討伐回数</div></div>`;
 
 document.getElementById('stats').innerHTML =
   `<tr><th>しょうろ</th><th>かず</th><th>りつ</th></tr>` +
@@ -182,7 +182,7 @@ document.getElementById('best').innerHTML =
   `・しゅうかん正答率ベスト　${b.best_week_rate || '——'}<br>` +
   `・さいちょう連続記録　${b.longest_streak || 0}日<br>` +
   `・とうたつ最高難易度　Lv.${b.highest_difficulty || 1}<br>` +
-  `・黄金竜　討伐回数　${b.ex_defeats || 0}回`;
+  `・トリプルフォー　討伐回数　${b.ex_defeats || 0}回`;
 
 /* --- ギルド番付（表彰台） --- */
 const entries = [{ name: p.name, art: p.art, accuracy: p.accuracy, me: true, emoji: p.job_emoji || '🗡' }]
@@ -226,7 +226,7 @@ entries.slice(3).forEach((e, i) => {
 html += `</div>` + (S.rival_line ? `<div class="rivalnote">${S.rival_line}</div>` : '');
 document.getElementById('rank').innerHTML = html;
 </script>
-<script src="bgm.js?v=18"></script>
+<script src="bgm.js?v=19"></script>
 <script>BGM.mount('status', 'right');</script>
 </body>
 </html>
