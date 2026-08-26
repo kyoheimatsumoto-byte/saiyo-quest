@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=26"></script>
+<script src="bgm.js?v=27"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -56,6 +56,7 @@ const SONGS = [
   { key: 'questL1', name: '【新1】トランペット', where: 'リード第2弾＋動くベース。明るく英雄的' },
   { key: 'questL2', name: '【新2】ロックオルガン', where: 'リード第2弾＋動くベース。バトル曲の王道' },
   { key: 'questL3', name: '【新3】クリーンギター', where: 'リード第2弾＋動くベース。歪みなしで軽快' },
+  { key: 'questV8', name: '【本命】採用と闘う者達・解剖版', where: '原曲の構造を解剖して再構成: 140bpm・ピアノアルペジオ・ファンクベース・金管スタブ・冒頭ロール' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>
