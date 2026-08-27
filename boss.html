@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>ボス戦｜採用クエスト</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1a0505">
+<style>
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  body {
+    margin: 0; min-height: 100vh; background: #0d0510; color: #eee;
+    font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", -apple-system, sans-serif;
+    line-height: 1.7; padding: 14px 12px 110px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  /* ボスバナー */
+  #bossBanner { text-align: center; padding: 16px 0 6px; }
+  #bossBanner .bemoji { font-size: 64px; display: inline-block; animation: sway 2.4s ease-in-out infinite; }
+  @keyframes sway { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  #bossBanner .bname { font-size: 20px; font-weight: 800; letter-spacing: 3px; color: #ff9e9e; text-shadow: 2px 2px 0 #000; margin-top: 4px; }
+  #bossBanner .btitle { font-size: 12px; color: #b09090; }
+  #bossBanner .bimg { width: 112px; height: 112px; object-fit: cover; border-radius: 12px;
+    border: 2px solid #ff9e9e; box-shadow: 0 0 24px rgba(255,80,80,.35); animation: sway 2.4s ease-in-out infinite; }
+  .hintBtn { border: 1px dashed #ffd24d; color: #ffd24d; background: rgba(255,210,77,.06);
+    border-radius: 8px; padding: 7px 13px; font-size: 13px; cursor: pointer; font-family: inherit; margin-bottom: 10px; }
+  .hinttext { display: none; border-left: 3px solid #ffd24d; background: rgba(255,210,77,.07);
+    color: #ffe9b0; font-size: 13.5px; padding: 8px 12px; border-radius: 0 8px 8px 0; margin-bottom: 12px; white-space: pre-wrap; }
+  /* 問題カード(ダーク) */
+  .q { background: #1c1224; border: 1px solid #4a2a5a; border-radius: 12px; padding: 15px; margin-bottom: 14px; }
+  .q .tag { display: inline-block; font-size: 12px; color: #d8b4fe; background: #3b2455; border-radius: 999px; padding: 1px 10px; margin-bottom: 8px; }
+  .q .qtext { font-size: 15px; white-space: pre-wrap; margin-bottom: 12px; }
+  .choice { display: flex; gap: 10px; align-items: flex-start; width: 100%; text-align: left;
+    background: none; border: 1px solid #4a2a5a; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px; font-size: 14px; color: #eee;
+    cursor: pointer; line-height: 1.6; font-family: inherit; }
+  .choice .mark { font-weight: 700; color: #b09090; flex-shrink: 0; }
+  .choice.sel { border-color: #d8b4fe; background: #3b2455; }
+  .choice.correct { border-color: #4ade80; background: #14331f; }
+  .choice.wrong { border-color: #f87171; background: #3b1a1a; }
+  .goldra {
+    display: flex; gap: 8px; align-items: center; justify-content: center; width: 100%;
+    background: linear-gradient(180deg, #6b4a10, #3a2708); border: 2px solid #ffe9a8;
+    color: #fff8e0; border-radius: 8px; padding: 10px 12px; margin-top: 10px;
+    font-size: 13.5px; font-family: inherit; cursor: pointer; font-weight: 700;
+  }
+  .goldra:disabled { opacity: .4; cursor: default; }
+  .choice.goldra-pick {
+    border-color: #ffd24d !important; background: #4a3208 !important;
+    box-shadow: 0 0 0 2px #a8801e, 0 0 16px rgba(255,210,77,.6);
+  }
+  #dragon {
+    position: fixed; left: -30vw; top: 38%; font-size: 68px; z-index: 500;
+    pointer-events: none; display: none; filter: drop-shadow(0 0 18px rgba(255,210,77,.85));
+  }
+  #dragon.fly { display: block; animation: dragonfly 1.5s ease-in-out forwards; }
+  @keyframes dragonfly {
+    0% { left: -30vw; transform: scale(.7) rotate(-8deg); opacity: 0; }
+    15% { opacity: 1; }
+    50% { transform: scale(1.15) rotate(4deg); }
+    85% { opacity: 1; }
+    100% { left: 110vw; transform: scale(.7) rotate(-6deg); opacity: 0; }
+  }
+  #confirm {
+    position: fixed; inset: 0; z-index: 600; display: none;
+    background: rgba(0,0,0,.72); align-items: center; justify-content: center; padding: 20px;
+  }
+  #confirm.show { display: flex; }
+  #confirm .box {
+    max-width: 340px; background: linear-gradient(180deg, #6b4a10, #2a1a06);
+    border: 3px solid #ffe9a8; border-radius: 12px; padding: 18px; text-align: center;
+    box-shadow: 0 0 0 3px #a8801e, 0 10px 30px rgba(0,0,0,.7);
+  }
+  #confirm .box p { margin: 0 0 14px; font-size: 14px; line-height: 1.75; }
+  #confirm .box button {
+    font-family: inherit; font-size: 14px; font-weight: 800; padding: 10px 18px; margin: 0 5px;
+    border-radius: 8px; cursor: pointer; border: 2px solid #ffe9a8;
+  }
+  #confirm .yes { background: #a8801e; color: #fff8e0; }
+  #confirm .no { background: transparent; color: #ffe9a8; }
+  .blank-group { margin-bottom: 14px; }
+  .blank-group .blabel { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { border: 1px solid #4a2a5a; background: none; color: #eee;
+    border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .opt.sel { border-color: #d8b4fe; background: #3b2455; color: #d8b4fe; font-weight: 700; }
+  .opt.correct { border-color: #4ade80; background: #14331f; color: #4ade80; font-weight: 700; }
+  .opt.wrong { border-color: #f87171; background: #3b1a1a; color: #f87171; }
+  .result-banner { font-size: 14px; font-weight: 700; border-radius: 10px; padding: 9px 13px; margin-top: 10px; display: none; }
+  .result-banner.ok { display: block; background: #14331f; color: #4ade80; }
+  .result-banner.ng { display: block; background: #3b1a1a; color: #f87171; }
+  .expl { display: none; margin-top: 12px; border-top: 1px dashed #4a2a5a; padding-top: 12px; font-size: 14px; }
+  .expl .ref a { color: #d8b4fe; word-break: break-all; }
+  #fightBtn { position: fixed; left: 50%; transform: translateX(-50%); bottom: 20px;
+    background: #b91c1c; color: #fff; border: 2px solid #fca5a5; border-radius: 999px;
+    font-size: 17px; font-weight: 800; letter-spacing: 4px; padding: 14px 46px; cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0,0,0,.5); font-family: inherit; z-index: 5; }
+  #fightBtn:disabled { opacity: .45; }
+  /* メッセージ演出オーバーレイ */
+  #ovl { position: fixed; inset: 0; background: rgba(0,0,0,.82); z-index: 50; display: none;
+    flex-direction: column; justify-content: flex-end; align-items: center; padding: 16px; }
+  #ovl.show { display: flex; }
+  #stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+  #stageEmoji { font-size: 88px; filter: drop-shadow(0 0 24px rgba(255,255,255,.25)); transition: opacity .6s, transform .6s; }
+  #stageEmoji.gone { opacity: 0; transform: translateY(-30px) scale(.6); }
+  #stageEmoji.goddess { filter: drop-shadow(0 0 34px rgba(255,240,150,.8)); animation: descend 1.4s ease; }
+  @keyframes descend { from { opacity: 0; transform: translateY(-60px); } to { opacity: 1; transform: translateY(0); } }
+  #stageName { font-size: 15px; font-weight: 700; letter-spacing: 3px; text-shadow: 2px 2px 0 #000; }
+  .flash { animation: flashbg .5s ease 2; }
+  @keyframes flashbg { 0%,100% { background: rgba(0,0,0,.82); } 50% { background: rgba(255,255,255,.85); } }
+  /* スーファミ風メッセージウィンドウ */
+  #msgwin {
+    width: 100%; max-width: 560px; min-height: 108px;
+    background: linear-gradient(180deg, #2038c8 0%, #0c1878 100%);
+    border: 3px solid #fff; border-radius: 8px;
+    box-shadow: 0 0 0 3px #3858e8, 0 6px 24px rgba(0,0,0,.7);
+    padding: 14px 18px; font-size: 16px; line-height: 1.9; letter-spacing: 1px;
+    color: #fff; text-shadow: 1px 1px 0 #000; cursor: pointer; position: relative;
+    white-space: pre-wrap; user-select: none;
+  }
+  #msgwin .arrow { position: absolute; right: 14px; bottom: 8px; animation: bounce .7s ease-in-out infinite; display: none; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+  /* 職業選択ウィンドウ */
+  #jobwin {
+    width: 100%; max-width: 560px; max-height: 55vh; overflow-y: auto;
+    background: linear-gradient(180deg, #2038c8 0%, #0c1878 100%);
+    border: 3px solid #fff; border-radius: 8px;
+    box-shadow: 0 0 0 3px #3858e8, 0 6px 24px rgba(0,0,0,.7);
+    padding: 12px 14px; margin-bottom: 10px; display: none;
+  }
+  #jobwin .jtitle { color: #ffd24d; font-size: 13px; letter-spacing: 2px; margin-bottom: 8px; text-shadow: 1px 1px 0 #000; }
+  .job { padding: 10px 8px; border-radius: 6px; cursor: pointer; }
+  .job:hover, .job.sel { background: rgba(255,255,255,.14); }
+  .job .jname { font-weight: 800; font-size: 15px; text-shadow: 1px 1px 0 #000; }
+  .job .jname .now { font-size: 11px; color: #9fd0ff; }
+  .job .jdesc { font-size: 12.5px; color: #cdd6ff; margin-top: 2px; }
+  .job .jspec { font-size: 11.5px; color: #ffd24d; }
+  #jobConfirm { display: none; text-align: center; padding: 10px 0 4px; }
+  #jobConfirm button { font-family: inherit; font-size: 15px; font-weight: 700; letter-spacing: 2px;
+    border-radius: 8px; padding: 10px 22px; margin: 0 6px; cursor: pointer; }
+  #jobYes { background: #ffd24d; border: 2px solid #fff; color: #402800; }
+  #jobNo { background: none; border: 2px solid #8890d8; color: #cdd6ff; }
+  .backlink { display: block; text-align: center; color: #9fd0ff; font-size: 13px; margin: 10px 0; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="bossBanner"></div>
+  <a class="backlink" href="./">◀ メニューへもどる</a>
+  <div id="quiz"></div>
+</div>
+<button id="fightBtn" disabled>たたかう</button>
+
+<div id="ovl">
+  <div id="stage">
+    <div id="stageEmoji"></div>
+    <div id="stageName"></div>
+  </div>
+  <div id="jobwin"></div>
+  <div id="msgwin"><span id="msgtext"></span><span class="arrow">▼</span></div>
+<div id="dragon">🐉</div>
+<div id="confirm"><div class="box">
+  <p id="confirmText"></p>
+  <button class="yes" id="cYes">呼ぶ</button><button class="no" id="cNo">やめる</button>
+</div></div>
+</div>
+
+<script>
+const B = {"date": "2026-08-27", "weekday": "木", "stage": 1, "boss": {"name": "影のヒッコヌキ", "emoji": "🥷", "art": "art/job_ninja.jpg", "title": "気配を絶つ隠密の頭領", "intro": ["……気配が　揺れた。", "影のヒッコヌキ「Lv10……　届いたか」", "影のヒッコヌキ「ならば　この影を　超えてみせよ」"], "victory_quote": "……見事だ。だが　私に勝利しても　老師ソロバンには　勝利できないだろう……", "defeat_lines": ["……甘い。", "出直してくるがいい"]}, "current_job": "サイヨウ勇者", "jobs": [{"key": "サイヨウ勇者", "name": "サイヨウ勇者", "emoji": "🗡", "specialty": "バランス", "desc": "採用の王道を歩む者。全カテゴリを均等に修行する。最初は全員ここから", "art": "art/sprite_yusha.png"}, {"key": "センリャクナイト", "name": "センリャクナイト", "emoji": "🛡", "specialty": "戦略", "desc": "採用人数×採用単価の大剣を振るう重騎士。KGIから逆算して戦場全体を設計する", "art": "art/sprite_knight.png"}, {"key": "ジャーニー吟遊詩人", "name": "ジャーニー吟遊詩人", "emoji": "🎻", "specialty": "マーケ", "desc": "求職者の心を4Pの調べで動かす詩人。ジャーニーマップを詠み、バケツの穴を見抜く", "art": "art/sprite_bard.png"}, {"key": "バイタイ召喚士", "name": "バイタイ召喚士", "emoji": "🔮", "specialty": "媒体", "desc": "状況に応じて最適な媒体を召喚する。各媒体の特性と料金を諳んじる者", "art": "art/sprite_summoner.png"}, {"key": "カイゼンモンク", "name": "カイゼンモンク", "emoji": "👊", "specialty": "運用", "desc": "クリック率3%を下回れば即、改善の拳を打ち込む武闘家。ファネルを毎週鍛え直す", "art": "art/sprite_monk.png"}, {"key": "スカウト忍者", "name": "スカウト忍者", "emoji": "🥷", "specialty": "スカウト", "desc": "闇夜に紛れて一本釣りする影の者。アクティブユーザーのダムを見極める", "art": "art/sprite_ninja.png"}, {"key": "コウロ航海士", "name": "コウロ航海士", "emoji": "⚓", "specialty": "チャネル", "desc": "媒体の海の外に商路を開く冒険者。先生とのリレーションという海図を持つ", "art": "art/sprite_sailor.png"}, {"key": "カンジョウ算術士", "name": "カンジョウ算術士", "emoji": "🧮", "specialty": "計算", "desc": "固定残業代も逆算予算も一撃で解く数の魔術師。数字で顧客を守る", "art": "art/sprite_sanjutsu.png"}], "questions": [{"no": 1, "subject": "チャネル", "type": "single", "text": "後輩RDから「高卒採用のスケジュール、来年から担当企業でも本格的にやりたいので教えてください」と聞かれた。正しい順序はどれか。", "choices": ["9/1頃 求人票受付開始 → 7/1 応募開始 → 9/16頃 選考開始", "7/1 求人票受付開始 → 9/1頃 応募開始 → 9/16頃 選考開始", "7/1 求人票受付開始 → 9/16頃 応募開始 → 9/1頃 選考開始", "6/1 求人票受付開始 → 9/1頃 応募開始 → 10/1頃 選考開始", "7/1 求人票受付開始 → 10/1頃 応募開始 → 10/16頃 選考開始"], "answer": 1, "explanation": "高卒採用は毎年固定スケジュール。7/1求人票受付開始→9/1頃応募開始→9/16頃選考開始の順で進む。企業から高校生への直接アプローチ禁止、応募は原則1社のみ（自治体により10月以降2社目解禁）などの特有ルールもセットで覚える。ハローワークへの求人票提出（都道府県別）も必須で準備に約1ヶ月半かかる。\n📌実務ポイント：スケジュールが固定のため、顧客への提案は前年秋〜年明けから動き出すのが鉄則。", "ref": {"label": "【勉③】媒体とダイレクトリクルーティング", "url": ""}}, {"no": 2, "subject": "計算", "type": "single", "text": "顧客から「年間10名採用したい。想定採用率10%・応募率4%・クリック単価500円で、必要な広告予算はいくらになりますか」と聞かれた。正しい金額はどれか。", "choices": ["50万円", "75万円", "100万円", "125万円", "150万円"], "answer": 3, "explanation": "ファネルは表示回数→クリック→応募→採用の順で逆算する。10名÷採用率10%＝100応募が必要。100応募÷応募率4%＝2,500クリックが必要。2,500クリック×クリック単価500円＝125万円。CPC(クリック単価)は媒体の力を横断比較する指標、CPA(採用単価)は投資対効果の最終評価指標として使い分ける。\n📌実務ポイント：予算不明の顧客には仮説少額（例:月10万円）を2ヶ月回し、実績で計画を練り直す進め方も有効。", "ref": {"label": "【勉⑤】採用計画の立て方", "url": ""}}, {"no": 3, "subject": "媒体", "type": "single", "text": "顧客に「有効求人倍率って何ですか、高い方がいいんですよね？」と聞かれた。RDとして最も正確な説明はどれか。", "choices": ["求職者1人に対する求人数の割合で、高いほど採用しやすい", "求職者1人に対する求人数の割合で、高いほど採用が難しい。東京都は全国最高水準で、大阪の方が採用しやすい", "求人1件に対する応募者数の割合で、高いほど採用しやすい", "都道府県ごとの最低賃金の水準を表す指標である", "全国一律の数値であり、地域差はない"], "answer": 1, "explanation": "有効求人倍率＝1人の働き手に対する求人数の割合。高いほど「求人の奪い合い」が激しく採用が難しい。全国平均は約1.2前後で推移し、最高は東京（1.7前後）。大阪は東京より有効求人倍率が低く採用しやすい傾向で、田舎ほど求職者は集まりやすい（最低賃金が低い分、全国水準の給与を出せば競争力が出るため）。\n📌実務ポイント：倍率の高い都市部の顧客には「奪い合いの土俵にいる」ことを数字で示すと予算増額の説得材料になる。", "ref": {"label": "【平①】【勉①】", "url": ""}}, {"no": 4, "subject": "時事", "type": "single", "text": "2026年度最低賃金改定について、正しい組み合わせはどれか。", "choices": ["全国加重平均1,176円（+55円）／東京都1,280円（+54円）", "全国加重平均1,280円（+55円）／東京都1,176円（+54円）", "全国加重平均1,176円（+40円）／東京都1,226円（+54円）", "全国加重平均1,226円（+55円）／東京都1,280円（+40円）", "全国加重平均1,176円（+55円）／東京都1,226円（据え置き）"], "answer": 0, "explanation": "中央最低賃金審議会の目安は全国加重平均1,176円（+55円・約4.9%、2026/7/28答申）。東京都はこれを受けて1,280円（+54円）への改定が答申された（10/1発効予定）。ちなみに現行（2025年10月改定）の東京都最低賃金は1,226円で、固定残業代の適法性判定など労務計算の基準にはこちらを使う場面がまだ多い（改定後は1,280円に更新される）。\n📌実務ポイント：最低賃金は都道府県ごとに発効日が異なるため、複数店舗を持つ顧客には店舗所在地別の発効日を個別確認するよう伝える。", "ref": {"label": "マイナビバイト「ナレビ」2026/8/20更新", "url": "https://nalevi.mynavi.jp/law/20192/"}}, {"no": 5, "subject": "チャネル", "type": "single", "text": "「アルムナイ」と「社員登用」の違いを一言で説明してほしいと言われた。最も正確なものはどれか。", "choices": ["アルムナイ＝アルバイト→正社員登用、社員登用＝退職者の出戻り採用。どちらも資金投資に分類される", "アルムナイ＝退職者の出戻り採用、社員登用＝アルバイト→正社員登用。どちらもロームコスト（労務コスト）系でコストが低い", "アルムナイ＝新卒採用の一種、社員登用＝中途採用の一種。どちらも媒体費がかかる", "アルムナイ＝退職者の出戻り採用、社員登用＝アルバイト→正社員登用。どちらも高額な人材紹介手数料がかかる", "アルムナイと社員登用は同じ意味で、退職者の出戻り採用を指す"], "answer": 1, "explanation": "アルムナイ＝出戻り採用、社員登用＝アルバイトから正社員への登用。どちらも「資金投資」（媒体・検索エンジン）ではなく「ロームコスト（労務コスト）」系に分類され、コストが低いのが特徴。飲食では自然発生しやすいが、戦略的に仕組み化できている企業は少ない。\n📌実務ポイント：採用ポートフォリオを組む際は、コントロールしにくいこの2つの見込みを先に確定させ、残りを媒体等で引き算方式で埋めるのが正しい手順。", "ref": {"label": "【平①】", "url": ""}}, {"no": 6, "subject": "計算", "type": "single", "text": "顧客から「家賃と人件費の目安を教えてほしい」と聞かれた。売上に対する目安として正しい組み合わせはどれか。", "choices": ["家賃10%／人件費(L)30%", "家賃30%／人件費(L)10%", "家賃20%／人件費(L)20%", "家賃15%／人件費(L)25%", "家賃10%／人件費(L)40%"], "answer": 0, "explanation": "家賃は売上の10%、人件費(L)は売上の3割（30%）が目安。FL比率（食材費＋人件費÷売上）の健全な目安55〜60%と合わせて覚えておくと、顧客のPLを見たときに即座に違和感を指摘できる。アルバイト人件費＝必要人数×出勤時間数×時給で算出し、人件費枠から差し引くと社員に払える給与水準が逆算できる。\n📌実務ポイント：給与設計をミスるとオープン後に致命傷になるため、出店相談の段階でFLと家賃の枠組みを先に共有するとRDの信頼が上がる。", "ref": {"label": "【勉⑤】採用計画の立て方", "url": ""}}, {"no": 7, "subject": "媒体", "type": "single", "text": "顧客から「Indeedと普通の求人媒体って何が違うんですか」と聞かれた。最も正確な説明はどれか。", "choices": ["Indeedは求人検索エンジンで、ネット上の求人情報を集約表示する。媒体は掲載料を払って掲載する枠を指す", "Indeedは業界特化型媒体、他の媒体はすべて総合型媒体という違いしかない", "Indeedは掲載料が最も高い媒体で、検索エンジンには分類されない", "求人検索エンジンと媒体は同じ仕組みで、呼び方が違うだけである", "Indeedは人材紹介会社であり、媒体とは異なる業態である"], "answer": 0, "explanation": "求人検索エンジン（Indeed・Google for Jobs・求人ボックス・スタンバイ等）はネット上の求人を集約表示する、いわばGoogle検索の求人版。媒体は掲載料を払って掲載する枠のことで、検索エンジンに読み込まれることもある。媒体はさらに業界特化型（飲食店.COM、クックビズ等）と一般型/全職種型（バイトル、doda等）に分かれる。\n📌実務ポイント：経験者は特化型・人材紹介・ダイレクトスカウト、未経験者は総合媒体（バイトルNEXT・Indeed）が取りやすい、という使い分けも合わせて押さえる。", "ref": {"label": "【平②】【勉②】", "url": ""}}, {"no": 8, "subject": "戦略", "type": "single", "text": "顧客から「前年3名採用・単価30万円だったので、今年50名採用も30万円×50＝1,500万円でいけますよね？」と言われた。RDとして最も適切な返しはどれか。", "choices": ["その通りです。人数が増えても単価は変わりません", "人数が急増すると採用精度の低下・離職増加・教育不足・1人あたり生産性（人時売上高）の悪化などにより、単価は悪化する可能性が高いです", "単価は人数に関わらず一定なので、予算はそのまま1,500万円で問題ありません", "人数が増えるほど媒体の割引が効くため、むしろ単価は下がります", "採用人数と採用単価は無関係なので、まず離職率だけ確認すればよいです"], "answer": 1, "explanation": "採用人数急増時のリスクは①採用精度が落ちる②離職が増える③教育ができない④1人あたり生産性の悪化（人時売上高の悪化）⑤組織が壊れる（文化希薄化・レポートライン崩壊・QSC維持困難）の5点。実例（空楽）でも「30万×50＝1,500万でいける」は誤りとされ、人数増で単価はむしろ悪化する。\n📌実務ポイント：急拡大フェーズの顧客には、単価の見える化→適切なコスト投下→結果的に下がる、という正しい順序をセットで伝える。", "ref": {"label": "【勉②】採用戦略とマーケ実践", "url": ""}}]};
+const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzm7QZ9RGFKspuD9fZQQ7B8pTYpcNK_XGm-r8gm9O4-Ee97hhRfvy2Ew-JJK9CkNmXeYg/exec";
+const CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩";
+const SAVE_KEY = "saiyo-boss-" + B.date;
+let state = {}, graded = false, outcome = null, chosenJob = null;
+const soundOn = () => localStorage.getItem("saiyo-quiz-sound") !== "off";
+
+// ---- サウンド ----
+let audioCtx = null;
+function ctx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, start, dur, type, vol) {
+  const c = ctx(); const o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'square'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, c.currentTime + start);
+  g.gain.linearRampToValueAtTime(vol || 0.12, c.currentTime + start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + start + dur);
+  o.connect(g); g.connect(c.destination);
+  o.start(c.currentTime + start); o.stop(c.currentTime + start + dur + 0.05);
+}
+function sfxBlip() { if (soundOn()) tone(1244, 0, .035, 'square', .045); }
+function sfxAppear() { if (soundOn()) [110,98,87.3,73.4].forEach((f,i)=>tone(f,i*.14,.3,'sawtooth',.1)); }
+function sfxDefeatBoss() { if (soundOn()) [392,330,262,196,131].forEach((f,i)=>tone(f,i*.1,.25,'sawtooth',.09)); }
+function sfxFanfare() {
+  if (!soundOn()) return;
+  [[523.25,0,.09],[659.25,.09,.09],[783.99,.18,.09],[1046.5,.27,.30],[880,.60,.12],[987.77,.72,.12]]
+    .forEach(n => tone(n[0], n[1], n[2], 'square', .09));
+  [[659.25,.27,.30],[698.46,.60,.12],[783.99,.72,.12]].forEach(n => tone(n[0], n[1], n[2], 'square', .05));
+  [261.63,523.25,659.25,783.99,1046.5,1318.5].forEach(f => tone(f, .84, 1.6, 'triangle', .06));
+  tone(2093, 1.05, .3, 'sine', .05); tone(2637, 1.22, .3, 'sine', .05); tone(3135.96, 1.39, .45, 'sine', .04);
+}
+function sfxGoddess() { if (soundOn()) [523.25,659.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>tone(f,i*.12,.5,'sine',.06)); }
+function sfxLose() { if (soundOn()) [220,207.65,196,185,174.61].forEach((f,i)=>tone(f,i*.22,.4,'triangle',.09)); }
+
+// ---- スーファミ風メッセージエンジン ----
+const ovl = document.getElementById('ovl');
+const msgtext = document.getElementById('msgtext');
+const arrowEl = document.querySelector('#msgwin .arrow');
+const stageEmoji = document.getElementById('stageEmoji');
+const stageName = document.getElementById('stageName');
+let typing = false, skipReq = false, advanceCb = null;
+
+function typeLine(text, cb) {
+  typing = true; skipReq = false;
+  msgtext.textContent = ''; arrowEl.style.display = 'none';
+  let i = 0;
+  (function step() {
+    if (skipReq) { msgtext.textContent = text; typing = false; arrowEl.style.display = 'inline'; advanceCb = cb; return; }
+    if (i < text.length) {
+      const ch = text[i];
+      msgtext.textContent += ch;
+      if (i % 2 === 0 && ch !== '　' && ch !== '…') sfxBlip();
+      i++;
+      const slow = (ch === '…' || ch === '、') ? 160 : (ch === '。') ? 220 : 42;
+      setTimeout(step, slow);
+    } else {
+      typing = false; arrowEl.style.display = 'inline'; advanceCb = cb;
+    }
+  })();
+}
+document.getElementById('msgwin').addEventListener('click', () => {
+  if (typing) { skipReq = true; return; }
+  if (advanceCb) { const cb = advanceCb; advanceCb = null; sfxBlip(); cb(); }
+});
+// シーン再生: scenes = [{emoji?, name?, text, before?()}]
+function playScenes(scenes, done) {
+  let idx = 0;
+  (function next() {
+    if (idx >= scenes.length) { if (done) done(); return; }
+    const s = scenes[idx++];
+    if (s.emoji !== undefined) stageEmoji.textContent = s.emoji;
+    if (s.name !== undefined) stageName.textContent = s.name;
+    if (s.cls !== undefined) stageEmoji.className = s.cls;
+    if (s.before) s.before();
+    setTimeout(() => typeLine(s.text, next), s.wait || 0);
+  })();
+}
+
+// ---- ボスバナー・問題描画 ----
+document.getElementById('bossBanner').innerHTML =
+  (B.boss.art ? `<img class="bimg" src="${B.boss.art}" alt="">` : `<span class="bemoji">${B.boss.emoji}</span>`) +
+  `<div class="bname">${B.boss.name}</div><div class="btitle">${B.boss.title}</div>`;
+
+function stageBoss() {
+  if (B.boss.art) stageEmoji.innerHTML = `<img src="${B.boss.art}" style="width:150px;height:150px;object-fit:cover;border-radius:14px;border:2px solid rgba(255,158,158,.7)">`;
+  else stageEmoji.textContent = B.boss.emoji;
+}
+
+const quizEl = document.getElementById('quiz');
+B.questions.forEach(q => {
+  const card = document.createElement('div');
+  card.className = 'q'; card.id = 'q' + q.no;
+  let inner = `<span class="tag">その${CIRCLED[q.no-1]}｜${q.subject}${q.type==='fill'?'（選択式）':''}</span>`;
+  inner += `<div class="qtext">${q.text}</div>`;
+  if (q.hint) {
+    inner += `<button class="hintBtn" data-q="${q.no}">💡 ${q.hint_from || 'かつての好敵手'}の助言を聞く</button>` +
+             `<div class="hinttext" id="hint${q.no}">${q.hint}</div>`;
+  }
+  if (q.type === 'single') {
+    q.choices.forEach((c, i) => {
+      inner += `<button class="choice" data-q="${q.no}" data-i="${i}"><span class="mark">${String.fromCharCode(65+i)}</span><span>${c}</span></button>`;
+    });
+  } else {
+    q.blanks.forEach((b, bi) => {
+      inner += `<div class="blank-group"><div class="blabel">【 ${b.label} 】</div><div class="opts">`;
+      q.options.forEach((o, oi) => {
+        inner += `<button class="opt" data-q="${q.no}" data-b="${bi}" data-i="${oi}">${CIRCLED[oi]}${o}</button>`;
+      });
+      inner += `</div></div>`;
+    });
+  }
+  if ((B.goldra || 0) > 0) {
+    inner += `<button class="goldra" data-gq="${q.no}">🐉 黄金竜ゴルドラを呼ぶ<span class="gleft"></span></button>`;
+  }
+  inner += `<div class="result-banner" id="banner${q.no}"></div><div class="expl" id="expl${q.no}"></div>`;
+  card.innerHTML = inner;
+  quizEl.appendChild(card);
+  state[q.no] = q.type === 'single' ? null : new Array(q.blanks.length).fill(null);
+});
+
+let goldraLeft = B.goldra || 0;
+const goldraUsedOn = [];   // ゴルドラに任せた問題番号
+
+function saveLocal() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ state, graded, outcome, chosenJob, goldraLeft, goldraUsedOn })); } catch (e) {}
+}
+
+function paintGoldra() {
+  document.querySelectorAll('.goldra').forEach(btn => {
+    const qno = parseInt(btn.dataset.gq, 10);
+    const used = goldraUsedOn.includes(qno);
+    btn.disabled = graded || used || goldraLeft <= 0;
+    btn.querySelector('.gleft').textContent =
+      used ? '（この問題は任せた）' : (goldraLeft > 0 ? `（残り${goldraLeft}体）` : '（もういない）');
+    if (used) btn.textContent = '🐉 黄金竜ゴルドラが答えを教えてくれた';
+  });
+}
+
+/* ゴルドラに1問任せる: 正解を選択済みにして固定する */
+function summonGoldra(qno, fromRestore) {
+  const q = B.questions.find(x => x.no === qno);
+  if (!q) return;
+  if (!fromRestore) { goldraLeft--; goldraUsedOn.push(qno); }
+  if (q.type === 'single') {
+    state[qno] = q.answer;
+    document.querySelectorAll(`.choice[data-q="${qno}"]`).forEach(el => {
+      el.classList.remove('sel');
+      if (parseInt(el.dataset.i, 10) === q.answer) el.classList.add('sel', 'goldra-pick');
+    });
+  } else {
+    state[qno] = q.blanks.map(b2 => b2.answer);
+    q.blanks.forEach((b2, bi) => {
+      document.querySelectorAll(`.opt[data-q="${qno}"][data-b="${bi}"]`).forEach(el => {
+        el.classList.remove('sel');
+        if (parseInt(el.dataset.i, 10) === b2.answer) el.classList.add('sel', 'goldra-pick');
+      });
+    });
+  }
+  paintGoldra(); updateBtn(); saveLocal();
+  if (!fromRestore) {
+    const d = document.getElementById('dragon');
+    d.classList.remove('fly'); void d.offsetWidth; d.classList.add('fly');
+    if (soundOn()) {   // 竜の咆哮＋きらめき
+      [65.4, 82.4, 98].forEach((f, i) => tone(f, i * .06, .9, 'sawtooth', .12));
+      [1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone(f, .35 + i * .09, .5, 'triangle', .07));
+    }
+  }
+}
+
+/* 確認ダイアログ */
+const confirmEl = document.getElementById('confirm');
+let pendingQ = null;
+document.addEventListener('click', e => {
+  const g = e.target.closest('.goldra');
+  if (g && !g.disabled) {
+    pendingQ = parseInt(g.dataset.gq, 10);
+    document.getElementById('confirmText').innerHTML =
+      `🐉 <b>その${CIRCLED[pendingQ-1]}</b> を　黄金竜ゴルドラに任せますか？<br>` +
+      `この問題は正解になりますが、ゴルドラは去っていきます。<br>` +
+      `<span style="color:#ffd24d">（残り${goldraLeft}体・戻せません）</span>`;
+    confirmEl.classList.add('show');
+  }
+});
+document.getElementById('cYes').addEventListener('click', () => {
+  confirmEl.classList.remove('show');
+  if (pendingQ != null) summonGoldra(pendingQ, false);
+  pendingQ = null;
+});
+document.getElementById('cNo').addEventListener('click', () => {
+  confirmEl.classList.remove('show'); pendingQ = null;
+});
+quizEl.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  if (btn.classList.contains('hintBtn')) {
+    const h = document.getElementById('hint' + btn.dataset.q);
+    h.style.display = 'block'; btn.style.display = 'none'; sfxBlip();
+    return;
+  }
+  if (graded) return;
+  const qno = parseInt(btn.dataset.q);
+  if (btn.classList.contains('choice')) {
+    document.querySelectorAll(`.choice[data-q="${qno}"]`).forEach(el => el.classList.remove('sel'));
+    btn.classList.add('sel'); state[qno] = parseInt(btn.dataset.i);
+  } else if (btn.classList.contains('opt')) {
+    const bi = parseInt(btn.dataset.b);
+    document.querySelectorAll(`.opt[data-q="${qno}"][data-b="${bi}"]`).forEach(el => el.classList.remove('sel'));
+    btn.classList.add('sel'); state[qno][bi] = parseInt(btn.dataset.i);
+  }
+  saveLocal(); updateBtn();
+});
+function allAnswered() {
+  return B.questions.every(q => q.type === 'single' ? state[q.no] !== null : state[q.no].every(v => v !== null));
+}
+function updateBtn() {
+  const b = document.getElementById('fightBtn');
+  b.disabled = !allAnswered();
+  b.textContent = allAnswered() ? '⚔️ たたかう' : 'たたかう（未回答あり）';
+}
+
+// ---- 採点と勝敗 ----
+function grade(fromRestore) {
+  graded = true;
+  const results = [];
+  B.questions.forEach(q => {
+    let ok;
+    if (q.type === 'single') {
+      ok = state[q.no] === q.answer;
+      document.querySelectorAll(`.choice[data-q="${q.no}"]`).forEach(el => {
+        const i = parseInt(el.dataset.i);
+        if (i === q.answer) el.classList.add('correct');
+        else if (i === state[q.no]) el.classList.add('wrong');
+      });
+    } else {
+      ok = q.blanks.every((b2, bi) => state[q.no][bi] === b2.answer);
+      q.blanks.forEach((b2, bi) => {
+        document.querySelectorAll(`.opt[data-q="${q.no}"][data-b="${bi}"]`).forEach(el => {
+          const i = parseInt(el.dataset.i);
+          if (i === b2.answer) el.classList.add('correct');
+          else if (i === state[q.no][bi]) el.classList.add('wrong');
+        });
+      });
+    }
+    results.push(ok);
+    const banner = document.getElementById('banner' + q.no);
+    banner.textContent = ok ? '⚔️ 会心の一撃！' : `💥 ${B.boss.name}の反撃を受けた…`;
+    banner.className = 'result-banner ' + (ok ? 'ok' : 'ng');
+    const ex = document.getElementById('expl' + q.no);
+    ex.style.display = 'block';
+    ex.innerHTML = `<div style="white-space:pre-wrap">${q.explanation}</div>` +
+      (q.ref ? `<div class="ref">根拠：<a href="${q.ref.url}" target="_blank" rel="noopener">${q.ref.label}</a></div>` : '');
+  });
+  const score = results.filter(Boolean).length;
+  const wrong = results.map((r, i) => r ? null : i + 1).filter(Boolean);
+  const need = B.ex ? 7 : 6;          // EXボスは8問中7問正解で勝利
+  outcome = score >= need ? 'win' : 'lose';
+  saveLocal();
+  if (!fromRestore && SUBMIT_URL && !SUBMIT_URL.startsWith('__')) {
+    const key = (B.ex ? 'saiyo-exboss-' : 'saiyo-boss-') + B.date;
+    try {
+      fetch(SUBMIT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ date: key, score: score, wrong: wrong }) });
+      if (goldraUsedOn.length > 0) {   // 使ったゴルドラの数を翌朝の集計に渡す
+        fetch(SUBMIT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ date: 'saiyo-goldra-' + B.date, score: goldraUsedOn.length, wrong: [] }) });
+      }
+    } catch (e) {}
+  }
+  paintGoldra();
+  document.getElementById('fightBtn').style.display = 'none';
+  if (window.BGM) BGM.stop();
+  if (fromRestore) return;
+  if (outcome === 'win') playVictory(score);
+  else playDefeat(score);
+}
+document.getElementById('fightBtn').addEventListener('click', () => {
+  if (graded || !allAnswered()) return;
+  grade(false);
+});
+
+// ---- 勝利シーン ----
+function playVictory(score) {
+  ovl.classList.add('show');
+  stageEmoji.className = ''; stageBoss(); stageName.textContent = B.boss.name;
+  const scenes = [
+    { text: `${B.boss.name}に　${score}かいの　こうげき！`, before: () => {} },
+    { text: `${B.boss.name}「ば、ばかな……　この……！」` },
+    { text: `${B.boss.name}を　たおした！`, before: () => { sfxDefeatBoss(); stageEmoji.classList.add('gone'); } }
+  ];
+  if (B.boss.victory_quote) {
+    scenes.push({ text: `${B.boss.name}の声「${B.boss.victory_quote}」`, wait: 400 });
+  }
+  if (B.ex) {   // ---- EXボス（トリプルフォー）の勝利: 女神ではなく宝を得る ----
+    const R = B.ex_rewards || {};
+    const exScenes = [
+      { text: `……`, wait: 500, before: () => { sfxFanfare(); stageName.textContent = ''; } },
+      { text: `くろい　かたちが　ほどけてゆく……`, wait: 700,
+        before: () => { stageEmoji.className = ''; stageEmoji.textContent = '✨'; stageName.textContent = ''; } },
+      { text: `🛡 「黄金竜の逆鱗」を　手に入れた！`, wait: 300,
+        before: () => { stageEmoji.textContent = '🛡'; sfxGoddess(); } }
+    ];
+    (R.items || []).forEach(it => {
+      exScenes.push({ text: `🎁 「${it}」を　手に入れた！`, wait: 200,
+                      before: () => { stageEmoji.textContent = '🎁'; sfxBlip(); } });
+    });
+    if (R.goldra) {
+      exScenes.push({ text: `🐉 金色の竜が　封から　解き放たれた……！`, wait: 600,
+                      before: () => { stageEmoji.textContent = '🐉'; sfxFanfare(); } });
+      exScenes.push({ text: `黄金竜「ゴルドラ」が　仲間になった！　ボス戦で　1問　任せられる。` });
+    } else {
+      exScenes.push({ text: `（竜の姿は　なかった。次に倒したとき　ふたたび出会えるだろう）` });
+    }
+    exScenes.push({ text: `地図の欠片は　風に還った。　また7枚　集めれば　トリプルフォーは　よみがえる。` });
+    exScenes.push({ text: `🏆 トリプルフォー　討伐 ${R.defeats || 1}回目　――　旅は　まだ続く。`,
+                    before: () => { stageEmoji.textContent = '🏆'; } });
+    playScenes(scenes.concat(exScenes), () => {
+      msgtext.innerHTML = '<a href="./" style="color:#ffe9a8">◀ メニューへもどる</a>';
+      arrowEl.style.display = 'none';
+    });
+    return;
+  }
+  playScenes(scenes.concat([
+    { text: `……`, wait: 500, before: () => { sfxFanfare(); stageName.textContent = ''; } },
+    { text: `まばゆい光とともに　女神が　あらわれた……！`, wait: 900,
+      before: () => { stageEmoji.className = 'goddess'; stageEmoji.textContent = '👼'; stageName.textContent = '女神'; sfxGoddess(); } },
+    { text: `女神「よくぞ　倒しました」` },
+    { text: `女神「その強さ、みごとです」` },
+    { text: `女神「あなたに　職業選択の自由を　与えましょう」` },
+    { text: `女神「どれか一つ　選んでください」` }
+  ]), showJobSelect);
+}
+
+// ---- 職業選択 ----
+function showJobSelect() {
+  const win = document.getElementById('jobwin');
+  win.style.display = 'block';
+  win.innerHTML = `<div class="jtitle">— 職業をえらぶ —</div>` +
+    B.jobs.map((j, i) =>
+      `<div class="job" data-i="${i}">${j.art ? `<img src="${j.art}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;float:right;margin-left:8px;image-rendering:pixelated">` : ''}<div class="jname">${j.emoji} ${j.name}${j.key === B.current_job ? ' <span class="now">（いまの職業）</span>' : ''}</div>` +
+      `<div class="jspec">とくい：${j.specialty}</div><div class="jdesc">${j.desc}</div><div style="clear:both"></div></div>`).join('') +
+    `<div id="jobConfirm"><button id="jobYes">この職業にする</button><button id="jobNo">考え直す</button></div>`;
+  msgtext.textContent = '';
+  arrowEl.style.display = 'none';
+  let selIdx = null;
+  win.addEventListener('click', e => {
+    const jd = e.target.closest('.job');
+    if (jd) {
+      win.querySelectorAll('.job').forEach(el => el.classList.remove('sel'));
+      jd.classList.add('sel');
+      selIdx = parseInt(jd.dataset.i);
+      sfxBlip();
+      document.getElementById('jobConfirm').style.display = 'block';
+      typeLine(`女神「${B.jobs[selIdx].name}……　それで　いいのですね？」`, () => {});
+      return;
+    }
+    if (e.target.id === 'jobYes' && selIdx !== null) confirmJob(selIdx);
+    if (e.target.id === 'jobNo') {
+      win.querySelectorAll('.job').forEach(el => el.classList.remove('sel'));
+      document.getElementById('jobConfirm').style.display = 'none';
+      selIdx = null;
+      typeLine('女神「どれか一つ　選んでください」', () => {});
+    }
+  });
+}
+function confirmJob(idx) {
+  chosenJob = B.jobs[idx].key;
+  saveLocal();
+  if (SUBMIT_URL && !SUBMIT_URL.startsWith('__')) {
+    try {
+      fetch(SUBMIT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ date: 'saiyo-job-' + B.date, score: idx, wrong: [] }) });
+    } catch (e) {}
+  }
+  document.getElementById('jobwin').style.display = 'none';
+  sfxGoddess();
+  playScenes([
+    { text: `女神「${B.jobs[idx].name}の力を　さずけました」`, emoji: '✨', name: '' },
+    { text: `女神「あしたの朝から　あたらしい旅が　始まります」` },
+    { text: `女神「では……　健闘を　祈ります」` },
+    { text: `${B.jobs[idx].emoji} あなたは　${B.jobs[idx].name}に　転職した！\nあしたの朝9:05、${B.jobs[idx].name}としての　最初の依頼が届く。`, before: () => { stageEmoji.textContent = B.jobs[idx].emoji; stageEmoji.className = ''; } }
+  ], () => { arrowEl.style.display = 'none'; });
+}
+
+// ---- 敗北シーン ----
+function playDefeat(score) {
+  ovl.classList.add('show');
+  stageEmoji.className = ''; stageBoss(); stageName.textContent = B.boss.name;
+  sfxLose();
+  const dlines = (B.boss.defeat_lines && B.boss.defeat_lines.length)
+    ? B.boss.defeat_lines.map(t => ({ text: `${B.boss.name}「${t}」` }))
+    : [ { text: `${B.boss.name}「フン……　その程度か」` }, { text: `${B.boss.name}「お前は　俺に　勝てない」` } ];
+  playScenes([
+    { text: `こうげきは　${score}かいしか　当たらなかった……` },
+    ...dlines,
+    { text: `${B.boss.name}は　闇の中へ　消えていった……`, before: () => { stageEmoji.classList.add('gone'); stageName.textContent = ''; } },
+    { text: `「……必ず明日、リベンジする」`, wait: 700 },
+    { text: `あしたの朝9:05　${B.boss.name}は　ふたたび　あらわれる。\n弱点を　見直しておこう。（下の解説を読める）` }
+  ], () => {
+    arrowEl.style.display = 'none';
+    setTimeout(() => { ovl.classList.remove('show'); }, 1200);
+    ovl.addEventListener('click', () => ovl.classList.remove('show'), { once: true });
+  });
+}
+
+// ---- 復元 ----
+paintGoldra();
+
+(function restore() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) { updateBtn(); return; }
+    const d = JSON.parse(raw);
+    if (d && Array.isArray(d.goldraUsedOn) && d.goldraUsedOn.length) {
+      d.goldraUsedOn.forEach(qno => { goldraUsedOn.push(qno); summonGoldra(qno, true); });
+      if (typeof d.goldraLeft === 'number') goldraLeft = d.goldraLeft;
+      paintGoldra();
+    }
+    if (d && d.state) {
+      Object.keys(d.state).forEach(k => { state[k] = d.state[k]; });
+      B.questions.forEach(q => {
+        if (q.type === 'single') {
+          if (state[q.no] !== null) {
+            const el = document.querySelector(`.choice[data-q="${q.no}"][data-i="${state[q.no]}"]`);
+            if (el) el.classList.add('sel');
+          }
+        } else {
+          state[q.no].forEach((v, bi) => {
+            if (v !== null) {
+              const el = document.querySelector(`.opt[data-q="${q.no}"][data-b="${bi}"][data-i="${v}"]`);
+              if (el) el.classList.add('sel');
+            }
+          });
+        }
+      });
+      if (d.graded) {
+        grade(true);
+        outcome = d.outcome; chosenJob = d.chosenJob || null;
+        if (outcome === 'win' && !chosenJob) {
+          ovl.classList.add('show');
+          stageEmoji.className = 'goddess'; stageEmoji.textContent = '👼'; stageName.textContent = '女神';
+          typeLine('女神「おかえりなさい。　どれか一つ　選んでください」', showJobSelect);
+        } else if (outcome === 'win' && chosenJob) {
+          const j = B.jobs.find(x => x.key === chosenJob) || B.jobs[0];
+          ovl.classList.add('show');
+          stageEmoji.className = ''; stageEmoji.textContent = j.emoji; stageName.textContent = '';
+          typeLine(`${j.emoji} あなたは　${j.name}に　転職ずみ。\nあしたの朝9:05、あたらしい旅が始まる。`, () => {
+            ovl.addEventListener('click', () => ovl.classList.remove('show'), { once: true });
+          });
+        }
+      }
+    }
+  } catch (e) {}
+  updateBtn();
+})();
+
+// ---- 登場デモ(未採点時のみ) ----
+if (!graded) {
+  ovl.classList.add('show');
+  stageBoss(); stageName.textContent = '';
+  sfxAppear();
+  const introScenes = B.boss.intro.map((t, i) => ({ text: t, name: i === 0 ? '' : B.boss.name }));
+  playScenes(introScenes, () => {
+    ovl.classList.remove('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+</script>
+<script src="bgm.js?v=27"></script>
+<script>BGM.mount(B.ex ? 'exboss' : B.stage === 3 ? 'boss3' : B.stage === 2 ? 'boss2' : 'boss1', 'right');</script>
+</body>
+</html>
