@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=27"></script>
+<script src="bgm.js?v=28"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -53,10 +53,14 @@ const SONGS = [
   { key: 'boss3',   name: '絶望の間で', where: 'ボス戦・3周目（ラスボス）' },
   { key: 'gacha',   name: '宝箱の間', where: 'ガチャ（お宝地図の欠片）' },
   { key: 'exboss',  name: 'トリプルフォー(裏ボス)', where: 'EXボス戦' },
-  { key: 'questL1', name: '【新1】トランペット', where: 'リード第2弾＋動くベース。明るく英雄的' },
-  { key: 'questL2', name: '【新2】ロックオルガン', where: 'リード第2弾＋動くベース。バトル曲の王道' },
-  { key: 'questL3', name: '【新3】クリーンギター', where: 'リード第2弾＋動くベース。歪みなしで軽快' },
-  { key: 'questV8', name: '【本命】採用と闘う者達・解剖版', where: '原曲の構造を解剖して再構成: 140bpm・ピアノアルペジオ・ファンクベース・金管スタブ・冒頭ロール' },
+  { key: 'questQA', name: '【冒険A】機械仕掛けの決戦・金管型', where: 'エアバスター風の伴奏＋英雄的な金管メロディ' },
+  { key: 'questQB', name: '【冒険B】機械仕掛けの決戦・シンセ型', where: '同じ伴奏＋敏捷なシンセリード' },
+  { key: 'questQC', name: '【冒険C】機械仕掛けの決戦・弦型', where: '同じ伴奏＋滑らかに歌う弦メロディ' },
+  { key: 'bossS1',  name: '【ボス風1】死闘ふう', where: 'ギャロップの疾走＋悲壮な金管' },
+  { key: 'bossS2',  name: '【ボス風2】再臨・片翼の天使ふう', where: '合唱のリズム詠唱×ロックドラム' },
+  { key: 'bossS3',  name: '【ボス風3】破滅への使者ふう', where: '不吉な行進・軍隊調スネア・鐘' },
+  { key: 'bossS4',  name: '【ボス風4】我ら来たれりふう', where: '土着のタム連打×男声詠唱' },
+  { key: 'bossS5',  name: '【ボス風5】最後の闘いふう', where: '渦巻くアルペジオ＋オルガンの決戦' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>

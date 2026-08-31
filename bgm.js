@@ -13,11 +13,16 @@ const BGM = (() => {
     boss3:   'bgm/boss3.m4a?v=4',
     gacha:   'bgm/gacha.m4a?v=2',
     exboss:  'bgm/exboss.m4a?v=2',
-    // ▼リード比較用・第2弾（採用が決まったら削除する）
-    questL1: 'bgm/quest_l1.m4a',
-    questL2: 'bgm/quest_l2.m4a',
-    questL3: 'bgm/quest_l3.m4a',
-    questV8: 'bgm/quest_v8.m4a',
+    // ▼試聴候補（採用が決まったら削除する）
+    questQA: 'bgm/quest_qa.m4a',
+    questQB: 'bgm/quest_qb.m4a',
+    questQC: 'bgm/quest_qc.m4a',
+    bossS1:  'bgm/boss_s1.m4a',
+    bossS2:  'bgm/boss_s2.m4a',
+    bossS3:  'bgm/boss_s3.m4a',
+    bossS4:  'bgm/boss_s4.m4a',
+    bossS5:  'bgm/boss_s5.m4a',
+
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;
   const buffers = {};
