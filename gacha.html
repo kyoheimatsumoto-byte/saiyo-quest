@@ -122,7 +122,8 @@
 </div>
 
 <script>
-const GACHA = {"date": "2026-09-02", "pieces": 3, "question": {"subject": "時事", "text": "Indeed Hiring Lab「2026年日本雇用動向」によれば、2026年の掲載賃金の前年比上昇率の見込みとして最も近いものはどれか。", "choices": ["0.5〜1.5%程度", "1.5〜2.5%程度", "3.0〜4.0%程度", "4.5〜5.5%程度", "変動なし（0%程度）"], "answer": 1, "explanation": "Indeed Hiring Labの分析では、2026年の掲載賃金の前年比上昇率は1.5〜2.5%程度へ減速する見込みとされている。賃上げ圧力が一服する分、給与以外の訴求（休日・環境）の相対価値が上がる可能性がある。（2026年2月4日公開）", "ref": {"label": "Indeed Hiring Lab「2026年日本雇用動向」", "url": "https://www.hiringlab.org/jp/blog/2026/02/04/"}}};
+const GACHA = {"date": "2026-09-03", "pieces": 4, "question": {"subject": "時事", "text": "厚生労働省が2026年8月28日に発表した「一般職業紹介状況（令和8年7月分）」で、都道府県別の有効求人倍率が最も低かった組み合わせとして正しいものはどれか。", "choices": ["神奈川県・0.84倍", "大阪府・0.95倍", "神奈川県・0.95倍", "東京都・0.84倍", "沖縄県・0.84倍"], "answer": 0, "explanation": "2026年7月の有効求人倍率（季調値）は全国1.18倍で前月横ばい。都道府県別では東京都1.69倍が最高、神奈川県0.84倍が最低だった（AI・半導体需要で製造業・派遣業の新規求人が増加した一方、DX関連の求人減が相殺）。
+💼実務ポイント：大阪府0.95倍（過去発表分）と混同しやすいが、今回最も低いのは神奈川県。地域別の有効求人倍率は毎月動くため、顧客との会話では発表月を明示して使うこと。", "ref": {"label": "日本経済新聞 2026/8/28", "url": "https://www.nikkei.com/article/DGXZQOUA273SK0X20C26A8000000/"}}};
 const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbzm7QZ9RGFKspuD9fZQQ7B8pTYpcNK_XGm-r8gm9O4-Ee97hhRfvy2Ew-JJK9CkNmXeYg/exec";
 const SAVE_KEY = 'saiyo-gacha-' + GACHA.date;
 let picked = null, done = false;
