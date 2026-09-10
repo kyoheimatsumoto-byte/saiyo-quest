@@ -147,16 +147,38 @@ function ctx() {
   return actx;
 }
 function soundOn() { return localStorage.getItem('saiyo-quiz-sound') !== 'off'; }
-function sfxChest() {   // 宝箱がきしむ音
+function sfxChest() {   // ガチャガチャ（カプセル機のハンドルを回す音→カプセルが落ちる音）
   if (!soundOn()) return;
-  const c = ctx(), t = c.currentTime;
-  for (let i = 0; i < 3; i++) {
-    const o = c.createOscillator(), g = c.createGain();
-    o.type = 'square'; o.frequency.setValueAtTime(180 + i * 40, t + i * .12);
-    g.gain.setValueAtTime(.06, t + i * .12);
-    g.gain.exponentialRampToValueAtTime(.001, t + i * .12 + .1);
-    o.connect(g); g.connect(c.destination); o.start(t + i * .12); o.stop(t + i * .12 + .12);
-  }
+  const c = ctx(), t0 = c.currentTime;
+  const noiseBuf = c.createBuffer(1, Math.floor(c.sampleRate * .05), c.sampleRate);
+  const nd = noiseBuf.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const tick = (t, pitch) => {
+    const n = c.createBufferSource(); n.buffer = noiseBuf;
+    const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 1.2;
+    const g = c.createGain();
+    g.gain.setValueAtTime(.16, t); g.gain.exponentialRampToValueAtTime(.001, t + .04);
+    n.connect(bp); bp.connect(g); g.connect(c.destination); n.start(t); n.stop(t + .05);
+    const o = c.createOscillator(), og = c.createGain();
+    o.type = 'square'; o.frequency.setValueAtTime(pitch, t);
+    o.frequency.exponentialRampToValueAtTime(pitch * .55, t + .03);
+    og.gain.setValueAtTime(.07, t); og.gain.exponentialRampToValueAtTime(.001, t + .045);
+    o.connect(og); og.connect(c.destination); o.start(t); o.stop(t + .05);
+  };
+  // 「ガチャッ」×2回（ハンドル2回転。カリカリ…ガチャ）
+  [0, .07, .14, .26].forEach((d, i) => tick(t0 + d, 950 - i * 130));
+  [0, .07, .14, .26].forEach((d, i) => tick(t0 + .48 + d, 950 - i * 130));
+  // カプセルが転がり落ちる「コロッ、ポコッ」
+  const roll = c.createOscillator(), rg = c.createGain();
+  roll.type = 'triangle'; roll.frequency.setValueAtTime(300, t0 + .88);
+  roll.frequency.exponentialRampToValueAtTime(210, t0 + .96);
+  rg.gain.setValueAtTime(.12, t0 + .88); rg.gain.exponentialRampToValueAtTime(.001, t0 + .98);
+  roll.connect(rg); rg.connect(c.destination); roll.start(t0 + .88); roll.stop(t0 + 1.0);
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(430, t0 + 1.0);
+  o.frequency.exponentialRampToValueAtTime(150, t0 + 1.1);
+  g.gain.setValueAtTime(.22, t0 + 1.0); g.gain.exponentialRampToValueAtTime(.001, t0 + 1.18);
+  o.connect(g); g.connect(c.destination); o.start(t0 + 1.0); o.stop(t0 + 1.2);
 }
 function sfxHit() {     // 欠片を手に入れた
   if (!soundOn()) return;
@@ -203,7 +225,7 @@ document.getElementById('drawBtn').addEventListener('click', () => {
     document.getElementById('drawBtn').style.display = 'none';
     document.getElementById('qbox').style.display = 'block';
     document.getElementById('qbox').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 620);
+  }, 1150);
 });
 
 /* --- 問題の描画 --- */
