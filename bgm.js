@@ -136,6 +136,63 @@ const BGM = (() => {
     if (done) setTimeout(done, 430);
   }
 
+  /* 🏃 にげる（お遊びコマンド）: 「しかし　逃げ出せなかった！」→被ダメージ音+画面シェイク */
+  let escaping = false;
+  function sfxDamage() {
+    if (localStorage.getItem('saiyo-quiz-sound') === 'off') return;
+    const c = ctx(), t0 = c.currentTime;
+    const len = 0.26;
+    const buf = c.createBuffer(1, Math.floor(c.sampleRate * len), c.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 1.6);
+    const src = c.createBufferSource(); src.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = 'lowpass';
+    f.frequency.setValueAtTime(2800, t0); f.frequency.exponentialRampToValueAtTime(420, t0 + len);
+    const g = c.createGain(); g.gain.setValueAtTime(.55, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + len);
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start(t0);
+    const o = c.createOscillator(), og = c.createGain();   // 打撃の芯
+    o.type = 'square'; o.frequency.setValueAtTime(210, t0);
+    o.frequency.exponentialRampToValueAtTime(70, t0 + .18);
+    og.gain.setValueAtTime(.22, t0); og.gain.exponentialRampToValueAtTime(.001, t0 + .2);
+    o.connect(og); og.connect(c.destination); o.start(t0); o.stop(t0 + .22);
+  }
+  function msgBlip() {
+    if (localStorage.getItem('saiyo-quiz-sound') === 'off') return;
+    const c = ctx(), t0 = c.currentTime;
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = 'square'; o.frequency.value = 1400;
+    g.gain.setValueAtTime(.025, t0); g.gain.exponentialRampToValueAtTime(.001, t0 + .03);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0 + .035);
+  }
+  function runAway() {
+    if (escaping) return; escaping = true;
+    try { const c = ctx(); if (c.state === 'suspended') c.resume(); } catch (e) {}
+    if (!document.getElementById('bgmShakeCss')) {
+      const st = document.createElement('style'); st.id = 'bgmShakeCss';
+      st.textContent = '@keyframes bgmShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-9px,2px)}40%{transform:translate(8px,-3px)}60%{transform:translate(-6px,3px)}80%{transform:translate(5px,-2px)}}';
+      document.head.appendChild(st);
+    }
+    const w = document.createElement('div');
+    w.style.cssText = 'position:fixed;left:50%;bottom:max(34px, env(safe-area-inset-bottom));transform:translateX(-50%);z-index:400;background:#0a1148;border:2px solid #fff;border-radius:10px;box-shadow:0 0 0 2px #3858e8,0 8px 28px rgba(0,0,0,.75);color:#fff;padding:14px 22px;font-size:16px;letter-spacing:2px;font-family:"Hiragino Kaku Gothic ProN",sans-serif;white-space:nowrap;max-width:calc(100vw - 24px);min-width:230px';
+    document.body.appendChild(w);
+    const text = 'しかし　逃げ出せなかった！';
+    let i = 0;
+    const timer = setInterval(() => {
+      i++;
+      w.textContent = text.slice(0, i);
+      if (text[i - 1] !== '　') msgBlip();
+      if (i >= text.length) {
+        clearInterval(timer);
+        setTimeout(() => {
+          sfxDamage();
+          document.body.style.animation = 'bgmShake .38s linear';
+          setTimeout(() => { document.body.style.animation = ''; }, 420);
+          setTimeout(() => { w.remove(); escaping = false; }, 1400);
+        }, 320);
+      }
+    }, 62);
+  }
+
   /* ⚙️ 設定UI + 初回操作での自動再生 */
   function mount(name, side) {
     const pos = side === 'left' ? 'left:max(12px, env(safe-area-inset-left))' : 'right:max(12px, env(safe-area-inset-right))';
@@ -148,6 +205,7 @@ const BGM = (() => {
       `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">🔈<input id="bgmVol" type="range" min="0" max="100" style="flex:1">🔊</div>` +
       `<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed rgba(160,190,255,.4);padding-top:10px"><b>🔔 効果音</b>` +
       `<button id="seToggle" style="border:1px solid #8890d8;background:none;color:#dfe8ff;border-radius:999px;padding:3px 14px;font-size:12px;cursor:pointer;font-family:inherit"></button></div>` +
+      `<button id="runAwayBtn" style="display:block;width:100%;margin-top:12px;border:1px solid #8890d8;background:none;color:#eef2ff;border-radius:8px;padding:7px 0;font-size:13px;letter-spacing:4px;cursor:pointer;font-family:inherit">🏃 にげる</button>` +
       `</div>`;
     document.body.appendChild(el);
     const gear = document.getElementById('bgmGear'), panel = document.getElementById('bgmPanel');
@@ -168,6 +226,10 @@ const BGM = (() => {
     const paintSe = () => { seBtn.textContent = seOn() ? 'ON' : 'OFF'; seBtn.style.color = seOn() ? '#8fe8a0' : '#8890d8'; seBtn.style.borderColor = seBtn.style.color; };
     paintSe();
     seBtn.addEventListener('click', () => { localStorage.setItem(SE_KEY, seOn() ? 'off' : 'on'); paintSe(); });
+    document.getElementById('runAwayBtn').addEventListener('click', () => {
+      panel.style.display = 'none';
+      runAway();
+    });
 
     // まず即時再生を試みる(コンテキストがsuspendedでも音源を待機させておく)
     if (isOn()) { try { play(name); } catch (e) {} }
