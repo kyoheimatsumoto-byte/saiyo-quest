@@ -21,6 +21,7 @@ const BGM = (() => {
     bossS3:  'bgm/boss_s3.m4a',
     bossS4:  'bgm/boss_s4.m4a',
     bossS5:  'bgm/boss_s5.m4a',
+    bossS6:  'bgm/boss_s6.m4a',
 
   };
   let actx = null, master = null, srcNode = null, current = null, gestureBound = false;

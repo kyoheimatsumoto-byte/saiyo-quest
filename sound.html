@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=29"></script>
+<script src="bgm.js?v=30"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -60,6 +60,7 @@ const SONGS = [
   { key: 'bossS3',  name: '【ボス風3】破滅への使者ふう', where: '不吉な行進・軍隊調スネア・鐘' },
   { key: 'bossS4',  name: '【ボス風4】我ら来たれりふう', where: '土着のタム連打×男声詠唱' },
   { key: 'bossS5',  name: '【ボス風5】最後の闘いふう', where: '渦巻くアルペジオ＋オルガンの決戦' },
+  { key: 'bossS6',  name: '【ボス風6】妖星乱舞ふう', where: '4楽章を41秒に圧縮: 黙示録→道化の行進→オルガン独奏→狂乱' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>
