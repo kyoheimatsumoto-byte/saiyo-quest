@@ -42,7 +42,7 @@
   <div class="volrow">🔈<input id="vol" type="range" min="0" max="100">🔊</div>
   <button id="stopBtn">■ 停止</button>
 </div>
-<script src="bgm.js?v=30"></script>
+<script src="bgm.js?v=31"></script>
 <script>
 const SONGS = [
   { key: 'prelude', name: 'いにしえの調べ', where: 'タイトル・ステータス' },
@@ -61,6 +61,9 @@ const SONGS = [
   { key: 'bossS4',  name: '【ボス風4】我ら来たれりふう', where: '土着のタム連打×男声詠唱' },
   { key: 'bossS5',  name: '【ボス風5】最後の闘いふう', where: '渦巻くアルペジオ＋オルガンの決戦' },
   { key: 'bossS6',  name: '【ボス風6】妖星乱舞ふう', where: '4楽章を41秒に圧縮: 黙示録→道化の行進→オルガン独奏→狂乱' },
+  { key: 'ff16A', name: '【FF16風1】彩りと火花ふう', where: '疾走バトル: タム駆動＋弦16分＋金管＋グロッケンの火花' },
+  { key: 'ff16B', name: '【FF16風2】巨人の肩にふう', where: '重量級: 和太鼓タム＋低音金管＋男声詠唱＋ホルンの巨躯' },
+  { key: 'ff16C', name: '【FF16風3】十六の鐘ふう', where: '鐘と合唱の大伽藍。管鐘がループ中ちょうど16回鳴る' },
 ];
 const list = document.getElementById('list');
 list.innerHTML = SONGS.map(s =>
